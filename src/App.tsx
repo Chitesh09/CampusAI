@@ -3,6 +3,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { CommandPalette } from './components/common/CommandPalette';
+import { LivingAcademicUniverse } from './components/common/LivingAcademicUniverse';
 import { LandingPage } from './components/landing/LandingPage';
 import { AuthModal } from './components/auth/AuthModal';
 import { DashboardOverview } from './components/dashboard/DashboardOverview';
@@ -18,7 +19,7 @@ import { CampusMap } from './components/campus-map/CampusMap';
 import { ProfessorMode } from './components/professor/ProfessorMode';
 import { CareerAssistant } from './components/career/CareerAssistant';
 import { AdminPortal } from './components/admin/AdminPortal';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const MainShell: React.FC = () => {
   const { currentView } = useApp();
@@ -33,23 +34,27 @@ const MainShell: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 font-sans selection:bg-indigo-500/30">
+    <div className="min-h-screen flex bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 font-sans selection:bg-indigo-500/30 relative">
+      {/* Living Academic Universe Background Layer */}
+      <LivingAcademicUniverse />
+
       {/* Self-assembling Sidebar */}
       <motion.div
-        initial={{ x: -20, opacity: 0 }}
+        initial={{ x: -30, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+        className="z-10"
       >
         <Sidebar />
       </motion.div>
 
       {/* Main Content Shell */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden z-10">
         {/* Self-assembling Header */}
         <motion.div
-          initial={{ y: -10, opacity: 0 }}
+          initial={{ y: -15, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.1, ease: 'easeOut' }}
+          transition={{ type: 'spring', stiffness: 350, damping: 25, delay: 0.1 }}
         >
           <Header />
         </motion.div>
@@ -59,7 +64,7 @@ const MainShell: React.FC = () => {
           key={currentView}
           initial={{ y: 15, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.15, ease: 'easeOut' }}
+          transition={{ type: 'spring', stiffness: 350, damping: 25, delay: 0.15 }}
           className="flex-1 pb-16"
         >
           {currentView === 'dashboard' && <DashboardOverview />}

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { LivingAICore } from './LivingAICore';
+import { AnimatedTimeline } from './AnimatedTimeline';
+import { useCountUp } from '../../hooks/useCountUp';
 import {
-  Sparkles,
   BookOpen,
   Calendar,
-  Clock,
   CheckSquare,
   BarChart2,
   AlertTriangle,
@@ -12,22 +13,19 @@ import {
   FileText,
   HelpCircle,
   Layers,
-  MapPin,
-  Bot,
-  Activity,
   Zap,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { mockClasses } from '../../data/mockData';
 
 export const DashboardOverview: React.FC = () => {
   const {
     currentUser,
+    userRole,
     setCurrentView,
     assignments,
     attendanceRecords,
     setActiveChatPrompt,
-    setIsCommandPaletteOpen,
   } = useApp();
 
   const [promptInput, setPromptInput] = useState('');
@@ -41,6 +39,12 @@ export const DashboardOverview: React.FC = () => {
         attendanceRecords.length) *
         10
     ) / 10;
+
+  // Upward Animated Counters
+  const countTodayClasses = useCountUp(todayClasses.length, 800, 500);
+  const countExamDays = useCountUp(14, 1000, 600);
+  const countPendingTasks = useCountUp(pendingAssignments.length, 900, 700);
+  const countAttendance = useCountUp(Math.round(overallAttendancePct), 1100, 800);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,63 +60,59 @@ export const DashboardOverview: React.FC = () => {
     "Explain Dijkstra's Algorithm",
   ];
 
+  // Dynamic Persona Memory Label
+  const getPersonaMemoryLabel = () => {
+    if (userRole === 'professor') {
+      return 'Active Memory: Prof. Alan Turing • CS Dept Faculty • 3 Active Courses (DBMS, AI, OS)';
+    }
+    if (userRole === 'admin') {
+      return 'Active Memory: Campus Registrar • System Admin Portal • Spring 2026 Master Timetable';
+    }
+    return `Active Memory: ${currentUser.name} • CS 6th Sem • DBMS CS601`;
+  };
+
+  // Framer Motion Staggered Variants
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring', stiffness: 350, damping: 25 },
+    },
+  };
+
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 select-none">
-      {/* MISSION CONTROL HUD TOP BAR */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-        className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
-      >
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center font-bold shrink-0">
-            <Activity className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                Academic Mission Control
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-            </div>
-            <h1 className="text-base font-bold text-slate-900 dark:text-white">
-              {currentUser.name} • {currentUser.department}
-            </h1>
-          </div>
-        </div>
-
-        {/* Quick Companion Launcher */}
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setIsCommandPaletteOpen(true)}
-            className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 font-medium text-xs border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors flex items-center space-x-1.5"
-          >
-            <kbd className="font-mono text-[10px]">⌘K</kbd>
-            <span>Command Bar</span>
-          </button>
-
-          <button
-            onClick={() => setCurrentView('ai-chat')}
-            className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors flex items-center space-x-1.5 shadow-sm"
-          >
-            <Bot className="w-4 h-4" />
-            <span>Launch AI Companion</span>
-          </button>
-        </div>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 select-none"
+    >
+      {/* 1. LIVING AI CORE HERO */}
+      <motion.div variants={itemVariants}>
+        <LivingAICore />
       </motion.div>
 
-      {/* AI COMPANION PROMPT HUD */}
+      {/* 2. AI COMPANION PROMPT BAR */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 350, damping: 25, delay: 0.05 }}
-        className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 shadow-sm space-y-3"
+        variants={itemVariants}
+        className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm space-y-3"
       >
         <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 font-mono">
           <span className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 font-semibold">
             <Zap className="w-3.5 h-3.5" />
-            <span>Memory Active: CS 6th Sem • DBMS CS601 • OS CS603</span>
+            <span>{getPersonaMemoryLabel()}</span>
           </span>
           <span className="text-[10px]">Gemini 2.5 Kernel</span>
         </div>
@@ -127,7 +127,8 @@ export const DashboardOverview: React.FC = () => {
           />
           <button
             type="submit"
-            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors flex items-center space-x-1"
+            aria-label="Submit Search Query"
+            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors flex items-center space-x-1 min-h-[44px]"
           >
             <span>Ask</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -143,7 +144,7 @@ export const DashboardOverview: React.FC = () => {
                 setActiveChatPrompt(prompt);
                 setCurrentView('ai-chat');
               }}
-              className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors text-[11px] font-medium"
+              className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors text-[11px] font-medium"
             >
               "{prompt}"
             </button>
@@ -151,158 +152,163 @@ export const DashboardOverview: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* 4 PRIMARY MISSION CONTROL KPI METRICS */}
+      {/* 3. UNIQUE KPI METRICS WITH ANIMATED SVG SPARK LINES & CIRCULAR RINGS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1: Next Lecture */}
+        {/* Metric 1: Today's Lectures */}
         <motion.div
+          variants={itemVariants}
           whileHover={{ y: -2 }}
           onClick={() => setCurrentView('timetable')}
-          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-indigo-500/50 transition-all cursor-pointer"
+          className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm hover:border-indigo-500/50 transition-all cursor-pointer space-y-2"
         >
           <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
             <span className="text-[11px] font-bold uppercase tracking-wider">Today's Lectures</span>
-            <BookOpen className="w-4 h-4 text-slate-400" />
+            <BookOpen className="w-4 h-4 text-indigo-400" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2 tabular-nums">
-            {todayClasses.length}
-          </p>
-          <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mt-1 truncate">
+          <div className="flex items-baseline justify-between">
+            <p className="text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums">
+              {countTodayClasses}
+            </p>
+            <span className="text-[10px] font-mono text-emerald-500 font-bold">1 Active Now</span>
+          </div>
+          <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold truncate">
             Next: CS601 in Hall 302 @ 09:00 AM
           </p>
         </motion.div>
 
-        {/* Metric 2: DBMS Exam HUD */}
+        {/* Metric 2: DBMS Exam HUD with SVG Sparkline */}
         <motion.div
+          variants={itemVariants}
           whileHover={{ y: -2 }}
           onClick={() => setCurrentView('timetable')}
-          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-purple-500/50 transition-all cursor-pointer"
+          className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm hover:border-purple-500/50 transition-all cursor-pointer space-y-2"
         >
           <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
             <span className="text-[11px] font-bold uppercase tracking-wider">DBMS Midterm</span>
-            <Calendar className="w-4 h-4 text-slate-400" />
+            <Calendar className="w-4 h-4 text-purple-400" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2 tabular-nums">
-            14 Days
-          </p>
-          <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">
+          <div className="flex items-center justify-between">
+            <p className="text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums">
+              {countExamDays} Days
+            </p>
+
+            <svg className="w-16 h-6" viewBox="0 0 60 20">
+              <path
+                d="M 0 15 Q 15 5, 30 12 T 60 4"
+                fill="none"
+                stroke="#a855f7"
+                strokeWidth="2"
+                strokeDasharray="100"
+                className="animate-[dash_1.5s_ease-out]"
+              />
+            </svg>
+          </div>
+          <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">
             Aug 15 • Hall 1 • 100 Marks
           </p>
         </motion.div>
 
         {/* Metric 3: Pending Tasks */}
         <motion.div
+          variants={itemVariants}
           whileHover={{ y: -2 }}
           onClick={() => setCurrentView('assignments')}
-          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-amber-500/50 transition-all cursor-pointer"
+          className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm hover:border-amber-500/50 transition-all cursor-pointer space-y-2"
         >
           <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
             <span className="text-[11px] font-bold uppercase tracking-wider">Pending Tasks</span>
-            <CheckSquare className="w-4 h-4 text-slate-400" />
+            <CheckSquare className="w-4 h-4 text-amber-400" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2 tabular-nums">
-            {pendingAssignments.length}
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums">
+            {countPendingTasks}
           </p>
-          <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1 truncate">
+          <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold truncate">
             High Priority: B+ Tree due Aug 4
           </p>
         </motion.div>
 
-        {/* Metric 4: Attendance Radar */}
+        {/* Metric 4: Attendance Circular Progress Ring */}
         <motion.div
+          variants={itemVariants}
           whileHover={{ y: -2 }}
           onClick={() => setCurrentView('attendance')}
-          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-emerald-500/50 transition-all cursor-pointer"
+          className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm hover:border-emerald-500/50 transition-all cursor-pointer space-y-2"
         >
           <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
             <span className="text-[11px] font-bold uppercase tracking-wider">Attendance Radar</span>
-            <BarChart2 className="w-4 h-4 text-slate-400" />
+            <BarChart2 className="w-4 h-4 text-emerald-400" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2 tabular-nums">
-            {overallAttendancePct}%
-          </p>
-          <p className="text-xs text-rose-500 font-bold mt-1 flex items-center space-x-1">
+          <div className="flex items-center justify-between">
+            <p className="text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums">
+              {countAttendance}%
+            </p>
+
+            <div className="relative w-8 h-8 flex items-center justify-center">
+              <svg className="w-8 h-8 transform -rotate-90">
+                <circle cx="16" cy="16" r="12" stroke="rgba(161, 161, 170, 0.2)" strokeWidth="3" fill="none" />
+                <circle
+                  cx="16"
+                  cy="16"
+                  r="12"
+                  stroke="#10b981"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeDasharray="75"
+                  strokeDashoffset={75 - (75 * overallAttendancePct) / 100}
+                  className="transition-all duration-1000 ease-out"
+                />
+              </svg>
+            </div>
+          </div>
+          <p className="text-xs text-rose-500 font-bold flex items-center space-x-1">
             {lowAttendance.length > 0 && <AlertTriangle className="w-3.5 h-3.5" />}
             <span>{lowAttendance.length} subject below 75%</span>
           </p>
         </motion.div>
       </div>
 
-      {/* ADAPTIVE SCHEDULE TABLE & QUICK WORKFLOWS */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Schedule Table (7 cols) */}
-        <div className="lg:col-span-7 p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
-            <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-              Today's Schedule (Monday)
-            </h2>
-            <button
-              onClick={() => setCurrentView('timetable')}
-              className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-            >
-              Full Week →
-            </button>
-          </div>
-
-          <div className="divide-y divide-slate-100 dark:divide-zinc-800">
-            {todayClasses.map((cls) => (
-              <div key={cls.id} className="py-3 flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 w-28">
-                    {cls.startTime} - {cls.endTime}
-                  </span>
-                  <div>
-                    <h3 className="text-xs font-bold text-slate-900 dark:text-white">
-                      {cls.subjectCode}: {cls.subjectName}
-                    </h3>
-                    <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
-                      Prof. {cls.faculty}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setCurrentView('campus-map')}
-                  className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 text-xs font-bold flex items-center space-x-1 transition-colors"
-                >
-                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{cls.room}</span>
-                </button>
-              </div>
-            ))}
-          </div>
+      {/* 4. ANIMATED TIMELINE & QUICK WORKFLOWS */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Animated Milestone Timeline (7 cols) */}
+        <div className="lg:col-span-7">
+          <AnimatedTimeline />
         </div>
 
-        {/* Quick Workflows & Low Attendance Radar (5 cols) */}
+        {/* Quick Workflows & Warnings (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 shadow-sm space-y-3">
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm space-y-3">
             <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Quick Workflows
             </h2>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <button
                 onClick={() => setCurrentView('doc-intelligence')}
-                className="p-3 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold flex items-center space-x-2 transition-colors text-left"
+                aria-label="Upload PDF"
+                className="p-3.5 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold flex items-center space-x-2 transition-colors text-left min-h-[44px]"
               >
                 <FileText className="w-4 h-4 text-slate-400" />
                 <span>Upload PDF</span>
               </button>
               <button
                 onClick={() => setCurrentView('quiz')}
-                className="p-3 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold flex items-center space-x-2 transition-colors text-left"
+                aria-label="Generate Quiz"
+                className="p-3.5 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold flex items-center space-x-2 transition-colors text-left min-h-[44px]"
               >
                 <HelpCircle className="w-4 h-4 text-slate-400" />
                 <span>Generate Quiz</span>
               </button>
               <button
                 onClick={() => setCurrentView('attendance')}
-                className="p-3 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold flex items-center space-x-2 transition-colors text-left"
+                aria-label="Safe Bunk Calculator"
+                className="p-3.5 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold flex items-center space-x-2 transition-colors text-left min-h-[44px]"
               >
                 <BarChart2 className="w-4 h-4 text-slate-400" />
                 <span>Safe Bunk Calc</span>
               </button>
               <button
                 onClick={() => setCurrentView('study-planner')}
-                className="p-3 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold flex items-center space-x-2 transition-colors text-left"
+                aria-label="AI Study Plan"
+                className="p-3.5 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold flex items-center space-x-2 transition-colors text-left min-h-[44px]"
               >
                 <Layers className="w-4 h-4 text-slate-400" />
                 <span>AI Study Plan</span>
@@ -328,7 +334,7 @@ export const DashboardOverview: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };

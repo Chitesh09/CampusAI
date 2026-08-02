@@ -14,10 +14,12 @@ import {
   HelpCircle,
   RotateCcw,
   ExternalLink,
-  Zap,
   Cpu,
   Brain,
-  CheckCircle2,
+  FileText,
+  Calendar,
+  Layers,
+  Activity,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,9 +30,9 @@ export const AIChat: React.FC = () => {
     {
       id: 'msg_welcome',
       sender: 'assistant',
-      content: `### 👋 Welcome! I am your personal Gemini AI Academic Companion.
+      content: `### 👋 Welcome to the Gemini AI Activity Center
 
-I maintain active context of your courses, lab manuals, exam schedules, and attendance records:
+I actively monitor your course outlines, lab manuals, exam schedules, and attendance metrics:
 - **Exam Details:** *"When is my DBMS exam?"*
 - **Campus Locations:** *"Where is Lab 5?"*
 - **Course Summaries:** *"Summarize DBMS Module 3"*
@@ -42,7 +44,7 @@ I maintain active context of your courses, lab manuals, exam schedules, and atte
 
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
-  const [executingTool, setExecutingTool] = useState<string | null>(null);
+  const [activeActivity, setActiveActivity] = useState<{ label: string; icon: React.ReactNode; progress: number } | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -55,7 +57,7 @@ I maintain active context of your courses, lab manuals, exam schedules, and atte
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isThinking, executingTool]);
+  }, [messages, isThinking, activeActivity]);
 
   const handleSendMessage = async (textToSend?: string) => {
     const queryText = textToSend || input;
@@ -72,20 +74,31 @@ I maintain active context of your courses, lab manuals, exam schedules, and atte
     if (!textToSend) setInput('');
     setIsThinking(true);
 
-    // Simulate tool execution animation step
+    // AI Activity Center Streaming Pipeline Simulation
     const lower = queryText.toLowerCase();
+    let activityLabel = 'Understanding Student Academic Context...';
+    let activityIcon = <Brain className="w-4 h-4 text-indigo-400" />;
+
     if (lower.includes('exam') || lower.includes('date')) {
-      setExecutingTool('Executing Tool: Academic Calendar Query');
-    } else if (lower.includes('lab') || lower.includes('where')) {
-      setExecutingTool('Executing Tool: Spatial Campus Navigation Twin');
+      activityLabel = 'Reading Academic Calendar & Timetable...';
+      activityIcon = <Calendar className="w-4 h-4 text-purple-400" />;
     } else if (lower.includes('summarize') || lower.includes('pdf')) {
-      setExecutingTool('Executing Tool: Document Intelligence Synthesis Engine');
-    } else {
-      setExecutingTool('Executing Tool: Gemini 2.5 Knowledge Base Retrieval');
+      activityLabel = 'Analyzing PDF Document & Extracting Key Concepts...';
+      activityIcon = <FileText className="w-4 h-4 text-emerald-400" />;
+    } else if (lower.includes('plan') || lower.includes('schedule')) {
+      activityLabel = 'Planning Revision Strategy & Break Timetable...';
+      activityIcon = <Layers className="w-4 h-4 text-amber-400" />;
     }
 
-    await new Promise((res) => setTimeout(res, 600));
-    setExecutingTool(null);
+    // Step 1: Progress 40%
+    setActiveActivity({ label: activityLabel, icon: activityIcon, progress: 40 });
+    await new Promise((res) => setTimeout(res, 400));
+
+    // Step 2: Progress 85%
+    setActiveActivity({ label: 'Generating Gemini 2.5 Response...', icon: <Sparkles className="w-4 h-4 text-indigo-400" />, progress: 85 });
+    await new Promise((res) => setTimeout(res, 400));
+
+    setActiveActivity(null);
 
     try {
       const res: GeminiResponse = await queryGeminiAI(queryText, geminiApiKey);
@@ -112,7 +125,7 @@ I maintain active context of your courses, lab manuals, exam schedules, and atte
       ]);
     } finally {
       setIsThinking(false);
-      setExecutingTool(null);
+      setActiveActivity(null);
     }
   };
 
@@ -132,35 +145,71 @@ I maintain active context of your courses, lab manuals, exam schedules, and atte
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)] max-w-4xl mx-auto p-4 space-y-3 select-none">
-      {/* ACTIVE MEMORY & CONTEXT HEADER */}
-      <div className="p-3 rounded-xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 shadow-sm flex items-center justify-between">
-        <div className="flex items-center space-x-2 text-xs">
-          <Brain className="w-4 h-4 text-indigo-500" />
-          <span className="font-bold text-slate-900 dark:text-white">
-            Companion Context:
-          </span>
-          <span className="font-mono text-slate-500 dark:text-zinc-400">
-            {currentUser.name} • {currentUser.department} (Semester {currentUser.semester})
-          </span>
+      {/* REAL-TIME AI ACTIVITY CENTER HEADER */}
+      <div className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold">
+              <Activity className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-xs font-bold text-slate-900 dark:text-white">
+                AI Activity Center Pipeline
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono">
+                Active Profile: {currentUser.name} • {currentUser.department} (Sem {currentUser.semester})
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() =>
+              setMessages([
+                {
+                  id: 'msg_reset',
+                  sender: 'assistant',
+                  content: 'Chat session reset. What would you like to analyze next?',
+                  timestamp: 'Just now',
+                },
+              ])
+            }
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 text-xs flex items-center space-x-1"
+            title="New Chat"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="text-[11px] font-bold">Reset</span>
+          </button>
         </div>
 
-        <button
-          onClick={() =>
-            setMessages([
-              {
-                id: 'msg_reset',
-                sender: 'assistant',
-                content: 'Chat reset. What would you like to ask your companion?',
-                timestamp: 'Just now',
-              },
-            ])
-          }
-          className="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 text-xs flex items-center space-x-1"
-          title="New Chat"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span className="text-[11px] font-bold">New Session</span>
-        </button>
+        {/* Streaming Task Execution Activity Card */}
+        <AnimatePresence>
+          {activeActivity && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs space-y-2 overflow-hidden"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 font-bold">
+                  {activeActivity.icon}
+                  <span>{activeActivity.label}</span>
+                </div>
+                <span className="font-mono text-[10px] font-bold">{activeActivity.progress}%</span>
+              </div>
+
+              {/* Progress Bar Ring Simulation */}
+              <div className="w-full bg-indigo-500/20 h-1.5 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${activeActivity.progress}%` }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full bg-indigo-500 rounded-full"
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* MESSAGES SCROLL AREA */}
@@ -185,7 +234,7 @@ I maintain active context of your courses, lab manuals, exam schedules, and atte
               className={`max-w-xl rounded-2xl p-4 leading-relaxed ${
                 msg.sender === 'user'
                   ? 'bg-indigo-600 text-white font-medium shadow-sm'
-                  : 'bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-200 shadow-sm'
+                  : 'bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] text-slate-800 dark:text-zinc-200 shadow-sm'
               }`}
             >
               <div className="prose dark:prose-invert prose-xs max-w-none space-y-2 whitespace-pre-wrap">
@@ -253,22 +302,7 @@ I maintain active context of your courses, lab manuals, exam schedules, and atte
           </motion.div>
         ))}
 
-        {/* ANIMATED TOOL EXECUTION CARD */}
-        <AnimatePresence>
-          {executingTool && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 text-xs font-mono font-bold flex items-center space-x-2 w-fit shadow-sm"
-            >
-              <Cpu className="w-4 h-4 animate-spin text-indigo-500" />
-              <span>{executingTool}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {isThinking && !executingTool && (
+        {isThinking && !activeActivity && (
           <div className="flex items-center space-x-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
             <Sparkles className="w-4 h-4 animate-spin" />
             <span>Gemini is thinking...</span>
@@ -298,7 +332,7 @@ I maintain active context of your courses, lab manuals, exam schedules, and atte
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask CampusCopilot anything about your courses, exams, or labs..."
-          className="w-full pl-3.5 pr-10 py-3 rounded-xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-zinc-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 shadow-sm"
+          className="w-full pl-3.5 pr-10 py-3 rounded-xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 shadow-sm"
         />
         <button
           type="submit"
