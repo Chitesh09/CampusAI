@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-app: #fafafa;
+    --bg-card: #ffffff;
+    --bg-subtle: #f4f4f5;
+    --border-main: #e4e4e7;
+    --text-heading: #09090b;
+    --text-body: #27272a;
+    --text-muted: #71717a;
+    --accent-indigo: #4f46e5;
+  }
+
+  .dark {
+    --bg-app: #08080a;
+    --bg-card: #121215;
+    --bg-subtle: #18181b;
+    --border-main: rgba(255, 255, 255, 0.07);
+    --text-heading: #f4f4f6;
+    --text-body: #e4e4e7;
+    --text-muted: #8e8e96;
+    --accent-indigo: #6366f1;
+  }
+
+  * {
+    border-color: var(--border-main);
+  }
+
+  body {
+    background-color: var(--bg-app);
+    color: var(--text-body);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Scrollbar - Apple Minimal */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(142, 142, 150, 0.2);
+  border-radius: 9999px;
+}
+
+/* Tabular figures for numerical data and timetables */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Apple glass bar */
+.glass-panel {
+  background: rgba(250, 250, 250, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(228, 228, 231, 0.6);
+}
+
+.dark .glass-panel {
+  background: rgba(8, 8, 10, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
