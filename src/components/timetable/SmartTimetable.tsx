@@ -68,7 +68,7 @@ export const SmartTimetable: React.FC = () => {
               dayClasses.map((cls) => (
                 <div
                   key={cls.id}
-                  className={`p-4 rounded-2xl border ${colorStyles[cls.color]} space-y-3`}
+                  className={`p-4 rounded-2xl border ${colorStyles[(cls.color || 'indigo') as keyof typeof colorStyles]} space-y-3`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-extrabold uppercase tracking-wider">

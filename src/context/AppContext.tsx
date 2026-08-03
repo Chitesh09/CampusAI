@@ -1,177 +1,142 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import type {
-  UserRole,
-  UserProfile,
-  AcademicDoc,
-  Assignment,
-  AttendanceRecord,
-  NotificationItem,
-} from '../types';
-import {
-  mockUser,
-  mockDocs,
-  mockAssignments,
-  mockAttendance,
-  mockNotifications,
-} from '../data/mockData';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import type { UserProfile, Assignment, AttendanceRecord, NotificationItem, AcademicDoc } from '../types';
+import { mockAssignments, mockAttendance, mockNotifications, mockDocs } from '../data/mockData';
 
 interface AppContextType {
-  userRole: UserRole;
-  setUserRole: (role: UserRole) => void;
   currentUser: UserProfile;
+  userRole: 'student' | 'professor' | 'admin';
+  setUserRole: (role: 'student' | 'professor' | 'admin') => void;
+  updateUserProfile: (profile: Partial<UserProfile>) => void;
   currentView: string;
   setCurrentView: (view: string) => void;
-  darkMode: boolean;
-  toggleDarkMode: () => void;
   isFocusMode: boolean;
-  toggleFocusMode: () => void;
+  setIsFocusMode: (mode: boolean) => void;
   isCommandPaletteOpen: boolean;
   setIsCommandPaletteOpen: (open: boolean) => void;
-  isApiKeyModalOpen: boolean;
-  setIsApiKeyModalOpen: (open: boolean) => void;
+  isOnboardingOpen: boolean;
+  setIsOnboardingOpen: (open: boolean) => void;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
-  geminiApiKey: string;
-  setGeminiApiKey: (key: string) => void;
+  isApiKeyModalOpen: boolean;
+  setIsApiKeyModalOpen: (open: boolean) => void;
   activeChatPrompt: string;
   setActiveChatPrompt: (prompt: string) => void;
-  docs: AcademicDoc[];
-  addDoc: (doc: AcademicDoc) => void;
   assignments: Assignment[];
-  addAssignment: (assignment: Assignment) => void;
+  setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>;
+  addAssignment: (newAssignment: Assignment) => void;
   toggleAssignmentStatus: (id: string) => void;
   attendanceRecords: AttendanceRecord[];
+  setAttendanceRecords: React.Dispatch<React.SetStateAction<AttendanceRecord[]>>;
   notifications: NotificationItem[];
+  setNotifications: React.Dispatch<React.SetStateAction<NotificationItem[]>>;
   markNotificationAsRead: (id: string) => void;
   clearAllNotifications: () => void;
+  docs: AcademicDoc[];
+  addDoc: (doc: AcademicDoc) => void;
+  geminiApiKey: string;
+  setGeminiApiKey: (key: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [userRole, setUserRole] = useState<UserRole>('student');
-  const [currentView, setCurrentView] = useState<string>('landing');
-  const [darkMode, setDarkMode] = useState<boolean>(true);
-  const [isFocusMode, setIsFocusMode] = useState<boolean>(false);
-  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
-  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const [geminiApiKey, setGeminiApiKeyState] = useState<string>(
-    localStorage.getItem('gemini_api_key') || ''
-  );
-  const [activeChatPrompt, setActiveChatPrompt] = useState<string>('');
+const initialStudentProfile: UserProfile = {
+  id: 'usr-1',
+  name: 'Rahul Sharma',
+  email: 'rahul.sharma@bmsce.ac.in',
+  role: 'student',
+  department: 'Computer Science & Engineering (CSE)',
+  semester: 6,
+  rollNumber: '1BM22CS104',
+  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+  university: 'VTU (Visvesvaraya Technological University)',
+  scheme: '2022 Scheme (CBCS)',
+  collegeName: 'BMS College of Engineering',
+  branch: 'Computer Science & Engineering (CSE)',
+  semesterName: '6th Semester',
+  section: 'Section B',
+  academicYear: '2025 - 2026',
+  isOnboarded: false, // Show guided onboarding wizard on first login
+};
 
-  const [docs, setDocs] = useState<AcademicDoc[]>(mockDocs);
+export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState<UserProfile>(initialStudentProfile);
+  const [userRole, setUserRole] = useState<'student' | 'professor' | 'admin'>('student');
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [activeChatPrompt, setActiveChatPrompt] = useState('');
   const [assignments, setAssignments] = useState<Assignment[]>(mockAssignments);
-  const [attendanceRecords] = useState<AttendanceRecord[]>(mockAttendance);
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(mockAttendance);
   const [notifications, setNotifications] = useState<NotificationItem[]>(mockNotifications);
+  const [docs, setDocs] = useState<AcademicDoc[]>(mockDocs);
+  const [geminiApiKey, setGeminiApiKey] = useState('');
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  // Global Keyboard Shortcuts (⌘K, ⌘F, ⌘D, ESC)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isCmd = e.metaKey || e.ctrlKey;
-      if (isCmd && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setIsCommandPaletteOpen((prev) => !prev);
-      } else if (isCmd && e.key.toLowerCase() === 'f') {
-        e.preventDefault();
-        setIsFocusMode((prev) => !prev);
-      } else if (isCmd && e.key.toLowerCase() === 'd') {
-        e.preventDefault();
-        setCurrentView('dashboard');
-      } else if (e.key === 'Escape') {
-        setIsCommandPaletteOpen(false);
-        setIsApiKeyModalOpen(false);
-        setIsAuthModalOpen(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const setGeminiApiKey = (key: string) => {
-    setGeminiApiKeyState(key);
-    localStorage.setItem('gemini_api_key', key);
+  const updateUserProfile = (profile: Partial<UserProfile>) => {
+    setCurrentUser((prev) => ({ ...prev, ...profile }));
   };
 
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
-  const toggleFocusMode = () => setIsFocusMode((prev) => !prev);
-
-  const addDoc = (newDoc: AcademicDoc) => {
-    setDocs((prev) => [newDoc, ...prev]);
-  };
-
-  const addAssignment = (assignment: Assignment) => {
-    setAssignments((prev) => [assignment, ...prev]);
+  const addAssignment = (newAssignment: Assignment) => {
+    setAssignments((prev) => [newAssignment, ...prev]);
   };
 
   const toggleAssignmentStatus = (id: string) => {
     setAssignments((prev) =>
-      prev.map((a) => {
-        if (a.id === id) {
-          const nextStatus =
-            a.status === 'pending'
-              ? 'in-progress'
-              : a.status === 'in-progress'
-              ? 'completed'
-              : 'pending';
-          return { ...a, status: nextStatus };
-        }
-        return a;
-      })
+      prev.map((a) =>
+        a.id === id ? { ...a, status: a.status === 'completed' ? 'pending' : 'completed' } : a
+      )
     );
   };
 
   const markNotificationAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
   const clearAllNotifications = () => {
     setNotifications([]);
   };
 
+  const addDoc = (newDoc: AcademicDoc) => {
+    setDocs((prev) => [newDoc, ...prev]);
+  };
+
   return (
     <AppContext.Provider
       value={{
+        currentUser,
         userRole,
         setUserRole,
-        currentUser: mockUser,
+        updateUserProfile,
         currentView,
         setCurrentView,
-        darkMode,
-        toggleDarkMode,
         isFocusMode,
-        toggleFocusMode,
+        setIsFocusMode,
         isCommandPaletteOpen,
         setIsCommandPaletteOpen,
-        isApiKeyModalOpen,
-        setIsApiKeyModalOpen,
+        isOnboardingOpen,
+        setIsOnboardingOpen,
         isAuthModalOpen,
         setIsAuthModalOpen,
-        geminiApiKey,
-        setGeminiApiKey,
+        isApiKeyModalOpen,
+        setIsApiKeyModalOpen,
         activeChatPrompt,
         setActiveChatPrompt,
-        docs,
-        addDoc,
         assignments,
+        setAssignments,
         addAssignment,
         toggleAssignmentStatus,
         attendanceRecords,
+        setAttendanceRecords,
         notifications,
+        setNotifications,
         markNotificationAsRead,
         clearAllNotifications,
+        docs,
+        addDoc,
+        geminiApiKey,
+        setGeminiApiKey,
       }}
     >
       {children}
@@ -181,8 +146,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
 export const useApp = () => {
   const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useApp must be used within an AppProvider');
-  }
+  if (!context) throw new Error('useApp must be used within AppProvider');
   return context;
 };

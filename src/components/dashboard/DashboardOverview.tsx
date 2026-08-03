@@ -60,15 +60,21 @@ export const DashboardOverview: React.FC = () => {
     "Explain Dijkstra's Algorithm",
   ];
 
-  // Dynamic Persona Memory Label
+  const college = currentUser.collegeName || 'BMS College of Engineering';
+  const branch = currentUser.branch || 'Computer Science & Engineering (CSE)';
+  const semName = currentUser.semesterName || '6th Semester';
+  const sec = currentUser.section || 'Section B';
+  const scheme = currentUser.scheme || '2022 Scheme (CBCS)';
+
+  // Dynamic Persona Memory Label based on Onboarding Selections
   const getPersonaMemoryLabel = () => {
     if (userRole === 'professor') {
-      return 'Active Memory: Prof. Alan Turing • CS Dept Faculty • 3 Active Courses (DBMS, AI, OS)';
+      return `Active Memory: Prof. ${currentUser.name} • ${branch} Faculty • 3 Active Courses`;
     }
     if (userRole === 'admin') {
-      return 'Active Memory: Campus Registrar • System Admin Portal • Spring 2026 Master Timetable';
+      return `Active Memory: ${college} Registrar • System Admin Portal`;
     }
-    return `Active Memory: ${currentUser.name} • CS 6th Sem • DBMS CS601`;
+    return `Active Memory: ${college} • ${branch.split(' ')[0]} ${semName} (${sec}) • ${scheme}`;
   };
 
   // Framer Motion Staggered Variants
@@ -110,11 +116,11 @@ export const DashboardOverview: React.FC = () => {
         className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm space-y-3"
       >
         <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 font-mono">
-          <span className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 font-semibold">
-            <Zap className="w-3.5 h-3.5" />
-            <span>{getPersonaMemoryLabel()}</span>
+          <span className="flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 font-semibold truncate pr-2">
+            <Zap className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{getPersonaMemoryLabel()}</span>
           </span>
-          <span className="text-[10px]">Gemini 2.5 Kernel</span>
+          <span className="text-[10px] shrink-0">Gemini 2.5 Kernel</span>
         </div>
 
         <form onSubmit={handleSearchSubmit} className="flex items-center space-x-2">
@@ -122,7 +128,7 @@ export const DashboardOverview: React.FC = () => {
             type="text"
             value={promptInput}
             onChange={(e) => setPromptInput(e.target.value)}
-            placeholder="Ask CampusCopilot anything... (e.g., When is my DBMS exam?)"
+            placeholder={`Ask CampusCopilot anything about ${college}... (e.g., When is my DBMS exam?)`}
             className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500"
           />
           <button
@@ -152,7 +158,7 @@ export const DashboardOverview: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* 3. UNIQUE KPI METRICS WITH ANIMATED SVG SPARK LINES & CIRCULAR RINGS */}
+      {/* 3. UNIQUE KPI METRICS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Today's Lectures */}
         <motion.div
@@ -176,7 +182,7 @@ export const DashboardOverview: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Metric 2: DBMS Exam HUD with SVG Sparkline */}
+        {/* Metric 2: DBMS Exam HUD */}
         <motion.div
           variants={itemVariants}
           whileHover={{ y: -2 }}

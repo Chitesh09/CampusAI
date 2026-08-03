@@ -4,6 +4,7 @@ import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { CommandPalette } from './components/common/CommandPalette';
 import { LivingAcademicUniverse } from './components/common/LivingAcademicUniverse';
+import { StudentOnboardingWizard } from './components/onboarding/StudentOnboardingWizard';
 import { LandingPage } from './components/landing/LandingPage';
 import { AuthModal } from './components/auth/AuthModal';
 import { DashboardOverview } from './components/dashboard/DashboardOverview';
@@ -22,7 +23,7 @@ import { AdminPortal } from './components/admin/AdminPortal';
 import { motion } from 'framer-motion';
 
 const MainShell: React.FC = () => {
-  const { currentView } = useApp();
+  const { currentView, currentUser, isOnboardingOpen } = useApp();
 
   if (currentView === 'landing') {
     return (
@@ -33,10 +34,15 @@ const MainShell: React.FC = () => {
     );
   }
 
+  const showOnboarding = !currentUser.isOnboarded || isOnboardingOpen;
+
   return (
     <div className="min-h-screen flex bg-slate-50 dark:bg-[#08080a] text-slate-900 dark:text-zinc-100 font-sans selection:bg-indigo-500/30 relative">
       {/* Living Academic Universe Background Layer */}
       <LivingAcademicUniverse />
+
+      {/* Guided Student Onboarding Wizard Modal */}
+      {showOnboarding && <StudentOnboardingWizard />}
 
       {/* Self-assembling Sidebar */}
       <motion.div

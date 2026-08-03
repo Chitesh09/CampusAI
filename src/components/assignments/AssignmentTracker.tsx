@@ -102,8 +102,8 @@ export const AssignmentTracker: React.FC = () => {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
                   {item.subject}
                 </span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${priorityBadges[item.priority]}`}>
-                  {item.priority.toUpperCase()}
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${priorityBadges[(item.priority || 'medium') as keyof typeof priorityBadges]}`}>
+                  {(item.priority || 'medium').toUpperCase()}
                 </span>
               </div>
 
