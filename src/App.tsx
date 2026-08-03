@@ -22,6 +22,7 @@ import { CareerAssistant } from './components/career/CareerAssistant';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { AcademicProfile } from './components/profile/AcademicProfile';
 import { SubjectsPage } from './components/subjects/SubjectsPage';
+import { VTUNotesLibrary } from './components/notes-library/VTUNotesLibrary';
 import { motion } from 'framer-motion';
 
 const MainShell: React.FC = () => {
@@ -77,6 +78,7 @@ const MainShell: React.FC = () => {
         >
           {currentView === 'dashboard' && <DashboardOverview />}
           {currentView === 'ai-chat' && <AIChat />}
+          {currentView === 'vtu-notes' && <VTUNotesLibrary />}
           {currentView === 'subjects' && <SubjectsPage />}
           {currentView === 'doc-intelligence' && <DocIntelligence />}
           {currentView === 'smart-notes' && <SmartNotes />}
