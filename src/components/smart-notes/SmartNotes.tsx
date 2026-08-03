@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
+import { useApp } from '../../context/AppContext';
 import { BookOpen, Download } from 'lucide-react';
 
 export const SmartNotes: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'short' | 'revision' | 'mindmap' | 'cheatsheet' | 'viva'>('short');
+  const { activeCurriculum, currentUser } = useApp();
+  const activeCourse = activeCurriculum[0] || { name: 'Database Management Systems', code: 'BCS501' };
+  const [activeTab, setActiveTab] = useState<'short' | 'mindmap' | 'formulas' | 'viva'>('short');
 
   const tabs = [
     { id: 'short', label: 'Short Notes' },
-    { id: 'revision', label: 'Revision Notes' },
-    { id: 'mindmap', label: 'Interactive Mind Map' },
-    { id: 'cheatsheet', label: 'Exam Cheat Sheet' },
-    { id: 'viva', label: 'Important Viva Questions' },
+    { id: 'mindmap', label: 'Mind Maps' },
+    { id: 'formulas', label: 'Key Formulas' },
+    { id: 'viva', label: 'Viva Q&A' },
   ];
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6 select-none">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -22,7 +24,7 @@ export const SmartNotes: React.FC = () => {
             <span>Smart Notes & Revision Hub</span>
           </h1>
           <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
-            Auto-generated AI summaries, mind maps, formula cheat sheets, and viva questions.
+            {currentUser.collegeName} • {currentUser.branch} ({currentUser.semesterName})
           </p>
         </div>
 
@@ -57,9 +59,9 @@ export const SmartNotes: React.FC = () => {
         <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              Database Management Systems (CS601) - Short Notes
+              {activeCourse.name} ({activeCourse.code}) - Revision Notes
             </h2>
-            <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Module 1 - 4</span>
+            <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Module 1 - 5</span>
           </div>
 
           <div className="space-y-3 text-xs text-slate-800 dark:text-zinc-200 leading-relaxed">
@@ -136,7 +138,7 @@ export const SmartNotes: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'cheatsheet' && (
+      {activeTab === 'formulas' && (
         <div className="p-6 rounded-2xl bg-slate-900 text-white border border-zinc-800 shadow-sm space-y-4 font-mono text-xs">
           <h2 className="text-sm font-bold text-indigo-400 font-sans">
             ⚡ 1-Page Midterm Exam Cheat Sheet
@@ -160,7 +162,7 @@ export const SmartNotes: React.FC = () => {
         </div>
       )}
 
-      {(activeTab === 'revision' || activeTab === 'viva') && (
+      {activeTab === 'viva' && (
         <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-3">
           <h2 className="text-base font-bold text-slate-900 dark:text-white">
             Top 5 Viva Questions & Model Answers

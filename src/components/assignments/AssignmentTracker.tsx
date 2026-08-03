@@ -8,16 +8,41 @@ import {
 } from 'lucide-react';
 
 export const AssignmentTracker: React.FC = () => {
-  const { assignments, addAssignment, toggleAssignmentStatus } = useApp();
+  const { assignments, addAssignment, toggleAssignmentStatus, activeCurriculum, currentUser } = useApp();
   const [filter, setFilter] = useState<'all' | 'pending' | 'in-progress' | 'completed'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
 
   const [title, setTitle] = useState('');
-  const [subject, setSubject] = useState('DBMS CS601');
+  const [subject, setSubject] = useState(activeCurriculum[0]?.name || 'Database Management Systems');
   const [deadline, setDeadline] = useState('2026-08-10');
   const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
 
-  const filtered = assignments.filter((a) => (filter === 'all' ? true : a.status === filter));
+  // Compute dynamic assignments mapped to activeCurriculum
+  const dynamicAssignments = activeCurriculum.flatMap((sub, idx) => [
+    {
+      id: `asgn-${sub.code}-1`,
+      title: `${sub.code} Module 1 & 2 Coursework Report`,
+      subject: sub.name,
+      deadline: '2026-08-12',
+      status: 'pending' as const,
+      priority: 'high' as const,
+      description: `Complete technical coursework report for ${sub.name} Module 1 topics.`,
+      points: 50,
+    },
+    {
+      id: `asgn-${sub.code}-2`,
+      title: `${sub.code} Practice Problems Set`,
+      subject: sub.name,
+      deadline: '2026-08-20',
+      status: 'completed' as const,
+      priority: 'medium' as const,
+      description: `Solved problem set covering ${sub.name} core concepts.`,
+      points: 50,
+    },
+  ]);
+
+  const allAssignments = [...assignments, ...dynamicAssignments];
+  const filtered = allAssignments.filter((a) => (filter === 'all' ? true : a.status === filter));
 
   const handleCreateAssignment = (e: React.FormEvent) => {
     e.preventDefault();

@@ -4,7 +4,7 @@ import { mockClasses, mockExams } from '../../data/mockData';
 import { Calendar, MapPin, Clock, User } from 'lucide-react';
 
 export const SmartTimetable: React.FC = () => {
-  const { setCurrentView } = useApp();
+  const { setCurrentView, activeCurriculum, currentUser } = useApp();
   const [selectedDay, setSelectedDay] = useState<'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday'>('Monday');
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as const;
@@ -17,7 +17,27 @@ export const SmartTimetable: React.FC = () => {
     rose: 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/30',
   };
 
-  const dayClasses = mockClasses.filter((c) => c.dayOfWeek === selectedDay);
+  const colorsList = ['indigo', 'purple', 'emerald', 'amber'];
+  const timeslots = [
+    { start: '09:00 AM', end: '10:00 AM', room: 'Hall 302' },
+    { start: '11:00 AM', end: '12:00 PM', room: 'Hall 104' },
+    { start: '02:00 PM', end: '03:00 PM', room: 'Lab 5' },
+    { start: '03:30 PM', end: '04:30 PM', room: 'Hall 201' },
+  ];
+
+  // Compute dynamic classes from activeCurriculum
+  const dayClasses = activeCurriculum.slice(0, 4).map((sub, idx) => ({
+    id: `cls-${sub.code}-${selectedDay}`,
+    subjectCode: sub.code,
+    subjectName: sub.name,
+    faculty: sub.faculty || 'Dept Professor',
+    room: timeslots[idx]?.room || 'Hall 301',
+    building: 'Main Block',
+    startTime: timeslots[idx]?.start || '09:00 AM',
+    endTime: timeslots[idx]?.end || '10:00 AM',
+    dayOfWeek: selectedDay,
+    color: colorsList[idx % colorsList.length],
+  }));
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
@@ -29,7 +49,7 @@ export const SmartTimetable: React.FC = () => {
             <span>Smart Timetable & Exam Schedule</span>
           </h1>
           <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
-            Interactive weekly schedule with room locations and exam countdowns.
+            {currentUser.collegeName} • {currentUser.branch} ({currentUser.semesterName})
           </p>
         </div>
       </div>

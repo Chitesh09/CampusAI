@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useApp } from '../../context/AppContext';
 import {
   Layers,
   Sparkles,
@@ -20,19 +21,34 @@ interface VTUSubject {
 }
 
 export const AIStudyPlanner: React.FC = () => {
-  const [selectedSem, setSelectedSem] = useState('Sem 6');
+  const { currentUser, updateUserProfile, activeCurriculum } = useApp();
+
+  const selectedSem = currentUser.semesterName || '7th Semester';
   const [studyHours, setStudyHours] = useState(4);
   const [startDate, setStartDate] = useState('2026-08-05');
   const [endDate, setEndDate] = useState('2026-08-18');
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('all');
 
-  // Active Subject List for current semester
-  const [subjects, setSubjects] = useState<VTUSubject[]>([
-    { id: 'subj-1', code: '21CS61', name: 'Database Management Systems', vtuNotesModule: 'VTU Circle Module 1-5 Notes' },
-    { id: 'subj-2', code: '21CS62', name: 'Software Engineering & SDLC', vtuNotesModule: 'VTU Circle Module 1-5 Notes' },
-    { id: 'subj-3', code: '21CS63', name: 'Web Technology & HTML5', vtuNotesModule: 'VTU Circle Module 1-5 Notes' },
-    { id: 'subj-4', code: '21CS64', name: 'Artificial Intelligence & ML', vtuNotesModule: 'VTU Circle Module 1-5 Notes' },
-  ]);
+  // Dynamic Subject List for current semester from activeCurriculum
+  const [subjects, setSubjects] = useState(() =>
+    activeCurriculum.map((s, idx) => ({
+      id: `subj-${idx + 1}`,
+      code: s.code,
+      name: s.name,
+      vtuNotesModule: `VTU Circle ${s.code} Notes`,
+    }))
+  );
+
+  React.useEffect(() => {
+    setSubjects(
+      activeCurriculum.map((s, idx) => ({
+        id: `subj-${idx + 1}`,
+        code: s.code,
+        name: s.name,
+        vtuNotesModule: `VTU Circle ${s.code} Notes`,
+      }))
+    );
+  }, [activeCurriculum]);
 
   // Modal / Form state for adding subjects
   const [showAddForm, setShowAddForm] = useState(false);
@@ -77,26 +93,7 @@ export const AIStudyPlanner: React.FC = () => {
   };
 
   const handleSemChange = (sem: string) => {
-    setSelectedSem(sem);
-    if (sem === 'Sem 6') {
-      setSubjects([
-        { id: 'subj-1', code: '21CS61', name: 'Database Management Systems', vtuNotesModule: 'VTU Circle Module 1-5 Notes' },
-        { id: 'subj-2', code: '21CS62', name: 'Software Engineering & SDLC', vtuNotesModule: 'VTU Circle Module 1-5 Notes' },
-        { id: 'subj-3', code: '21CS63', name: 'Web Technology & HTML5', vtuNotesModule: 'VTU Circle Module 1-5 Notes' },
-        { id: 'subj-4', code: '21CS64', name: 'Artificial Intelligence & ML', vtuNotesModule: 'VTU Circle Module 1-5 Notes' },
-      ]);
-    } else if (sem === 'Sem 5') {
-      setSubjects([
-        { id: 'subj-501', code: '21CS51', name: 'Management & Entrepreneurship', vtuNotesModule: 'VTU Circle Notes' },
-        { id: 'subj-502', code: '21CS52', name: 'Computer Networks', vtuNotesModule: 'VTU Circle Notes' },
-        { id: 'subj-503', code: '21CS53', name: 'DBMS Lab & Theory', vtuNotesModule: 'VTU Circle Notes' },
-      ]);
-    } else {
-      setSubjects([
-        { id: `subj-${sem}-1`, code: `21CS${sem.replace('Sem ', '')}1`, name: `${sem} Core Engineering Subject 1`, vtuNotesModule: 'VTU Circle Notes' },
-        { id: `subj-${sem}-2`, code: `21CS${sem.replace('Sem ', '')}2`, name: `${sem} Core Engineering Subject 2`, vtuNotesModule: 'VTU Circle Notes' },
-      ]);
-    }
+    updateUserProfile({ semesterName: sem });
   };
 
   // Base Timetable

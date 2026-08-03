@@ -3,12 +3,23 @@ import { useApp } from '../../context/AppContext';
 import { BarChart2, AlertTriangle, CheckCircle2, Calculator } from 'lucide-react';
 
 export const AttendanceDashboard: React.FC = () => {
-  const { attendanceRecords } = useApp();
-  const [selectedSubjectId, setSelectedSubjectId] = useState(attendanceRecords[2]?.id || attendanceRecords[0]?.id);
+  const { activeCurriculum, currentUser } = useApp();
 
+  const dynamicAttendanceRecords = activeCurriculum.map((sub) => ({
+    id: `att-${sub.code}`,
+    subject: sub.name,
+    code: sub.code,
+    attended: Math.round((sub.attendancePct / 100) * 35),
+    total: 35,
+    percentage: sub.attendancePct,
+    minimumRequired: 75,
+    faculty: sub.faculty || 'Dept Professor',
+  }));
+
+  const [selectedSubjectId, setSelectedSubjectId] = useState(dynamicAttendanceRecords[0]?.id);
   const [lecturesToMiss, setLecturesToMiss] = useState(2);
 
-  const activeRecord = attendanceRecords.find((r) => r.id === selectedSubjectId) || attendanceRecords[0];
+  const activeRecord = dynamicAttendanceRecords.find((r) => r.id === selectedSubjectId) || dynamicAttendanceRecords[0];
 
   const predictedAttended = activeRecord.attended;
   const predictedTotal = activeRecord.total + lecturesToMiss;
@@ -44,7 +55,7 @@ export const AttendanceDashboard: React.FC = () => {
           </h2>
 
           <div className="space-y-3">
-            {attendanceRecords.map((rec) => {
+            {dynamicAttendanceRecords.map((rec) => {
               const isLow = rec.percentage < rec.minimumRequired;
               const isSelected = selectedSubjectId === rec.id;
               return (
