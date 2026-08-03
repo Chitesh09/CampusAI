@@ -24,16 +24,13 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const SubjectsPage: React.FC = () => {
-  const { setCurrentView, setActiveChatPrompt, currentUser } = useApp();
+  const { setCurrentView, setActiveChatPrompt, currentUser, activeCurriculum } = useApp();
 
-  const subjectsList = [
-    { code: '21CS61', name: 'Database Management Systems', credits: 4, faculty: 'Prof. Alan Turing' },
-    { code: '21CS62', name: 'Software Engineering & SDLC', credits: 3, faculty: 'Prof. Grace Hopper' },
-    { code: '21CS63', name: 'Web Technology & HTML5', credits: 4, faculty: 'Prof. Tim Berners-Lee' },
-    { code: '21CS64', name: 'Artificial Intelligence & ML', credits: 3, faculty: 'Prof. Geoffrey Hinton' },
-  ];
+  const subjectsList = activeCurriculum;
 
-  const [activeSubjectCode, setActiveSubjectCode] = useState<string>('21CS61');
+  const [activeSubjectCode, setActiveSubjectCode] = useState<string>(
+    subjectsList[0]?.code || 'BCS501'
+  );
   const [activeTab, setActiveTab] = useState<
     | 'overview'
     | 'modules'
@@ -193,14 +190,8 @@ export const SubjectsPage: React.FC = () => {
         {/* TAB 2: MODULES */}
         {activeTab === 'modules' && (
           <div className="space-y-4 text-xs">
-            <h2 className="font-extrabold text-slate-900 dark:text-white text-sm">Official VTU 2022 Scheme Modules (1 to 5):</h2>
-            {[
-              { num: 1, title: 'Introduction & ER Diagrams', topics: 'Entity Relationships, Conceptual Design, Schema Mapping' },
-              { num: 2, title: 'Relational Algebra & Normalization', topics: '1NF, 2NF, 3NF, BCNF, Functional Dependencies' },
-              { num: 3, title: 'Indexing & B+ Trees', topics: 'Dense & Sparse Indexes, B+ Tree Node Insertion/Splitting' },
-              { num: 4, title: 'Transaction Processing & 2PL', topics: 'ACID Properties, Two-Phase Locking, Deadlock Prevention' },
-              { num: 5, title: 'NoSQL & MongoDB', topics: 'Document Databases, Key-Value Stores, CAP Theorem' },
-            ].map((mod) => (
+            <h2 className="font-extrabold text-slate-900 dark:text-white text-sm">Official VTU Scheme Modules (1 to 5):</h2>
+            {currentSubject.modules.map((mod) => (
               <div key={mod.num} className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">MODULE {mod.num}</span>

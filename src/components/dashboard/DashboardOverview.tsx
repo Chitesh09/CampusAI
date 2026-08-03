@@ -30,6 +30,7 @@ export const DashboardOverview: React.FC = () => {
     assignments,
     attendanceRecords,
     setActiveChatPrompt,
+    activeCurriculum,
   } = useApp();
 
   const [promptInput, setPromptInput] = useState('');
@@ -64,12 +65,7 @@ export const DashboardOverview: React.FC = () => {
     setCurrentView('ai-chat');
   };
 
-  const currentSubjects = [
-    { code: '21CS61', name: 'Database Management Systems', credits: 4, progress: 68 },
-    { code: '21CS62', name: 'Software Engineering & SDLC', credits: 3, progress: 80 },
-    { code: '21CS63', name: 'Web Technology & HTML5', credits: 4, progress: 55 },
-    { code: '21CS64', name: 'Artificial Intelligence & ML', credits: 3, progress: 42 },
-  ];
+  const currentSubjects = activeCurriculum;
 
   const recentPDFs = [
     { title: 'DBMS_Module3_BPlusTrees_Notes.pdf', size: '2.4 MB', date: 'Opened 2 hours ago' },

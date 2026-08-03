@@ -31,22 +31,17 @@ interface VTUResource {
 }
 
 export const VTUNotesLibrary: React.FC = () => {
-  const { setCurrentView, setActiveChatPrompt, currentUser } = useApp();
+  const { setCurrentView, setActiveChatPrompt, currentUser, updateUserProfile, activeCurriculum } = useApp();
 
-  const [selectedBranch, setSelectedBranch] = useState(currentUser.branch || 'Computer Science & Engineering (CSE)');
-  const [selectedSem, setSelectedSem] = useState(currentUser.semesterName || '5th Semester');
-  const [selectedScheme, setSelectedScheme] = useState(currentUser.scheme || '2022 Scheme (CBCS)');
-  const [selectedSubject, setSelectedSubject] = useState('BCS501 / 21CS61 Database Management Systems');
+  const selectedBranch = currentUser.branch || 'Computer Science & Engineering (CSE)';
+  const selectedSem = currentUser.semesterName || '5th Semester';
+  const selectedScheme = currentUser.scheme || '2022 Scheme (CBCS)';
+
+  const subjectsList = activeCurriculum.map((s) => `${s.code} ${s.name}`);
+  const [selectedSubject, setSelectedSubject] = useState(subjectsList[0] || 'BCS501 Database Management Systems');
   const [activeModule, setActiveModule] = useState<number>(1);
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  const subjectsList = [
-    'BCS501 / 21CS61 Database Management Systems',
-    'BCS502 / 21CS62 Software Engineering & SDLC',
-    'BCS503 / 21CS63 Web Technology & HTML5',
-    'BCS504 / 21CS64 Artificial Intelligence & ML',
-  ];
 
   // Automated 9 Resource Categories Data for VTU 2022 Scheme
   const mockVTUResources: VTUResource[] = [
@@ -203,7 +198,7 @@ export const VTUNotesLibrary: React.FC = () => {
           <label className="block text-slate-500 dark:text-zinc-400">1. Branch / Stream:</label>
           <select
             value={selectedBranch}
-            onChange={(e) => setSelectedBranch(e.target.value)}
+            onChange={(e) => updateUserProfile({ branch: e.target.value })}
             className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:outline-none"
           >
             <option value="Computer Science & Engineering (CSE)">Computer Science (CSE)</option>
@@ -218,7 +213,7 @@ export const VTUNotesLibrary: React.FC = () => {
           <label className="block text-slate-500 dark:text-zinc-400">2. Semester:</label>
           <select
             value={selectedSem}
-            onChange={(e) => setSelectedSem(e.target.value)}
+            onChange={(e) => updateUserProfile({ semesterName: e.target.value })}
             className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:outline-none"
           >
             {['1st Semester', '2nd Semester', '3rd Semester', '4th Semester', '5th Semester', '6th Semester', '7th Semester', '8th Semester'].map((sem) => (
@@ -232,7 +227,7 @@ export const VTUNotesLibrary: React.FC = () => {
           <label className="block text-slate-500 dark:text-zinc-400">3. Curriculum Scheme:</label>
           <select
             value={selectedScheme}
-            onChange={(e) => setSelectedScheme(e.target.value)}
+            onChange={(e) => updateUserProfile({ scheme: e.target.value })}
             className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white focus:outline-none"
           >
             <option value="2022 Scheme (CBCS)">2022 Scheme (CBCS)</option>
