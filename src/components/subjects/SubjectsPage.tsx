@@ -178,9 +178,9 @@ export const SubjectsPage: React.FC = () => {
               <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-2">
                 <div className="font-bold text-slate-900 dark:text-white">Faculty Office Hours:</div>
                 <div className="text-slate-600 dark:text-zinc-400 space-y-1">
-                  <div>Instructor: {currentSubject.faculty}</div>
+                  <div>Instructor: {currentSubject.faculty || 'Dept Faculty'}</div>
                   <div>Office Hours: Mon & Wed 02:00 PM - 04:00 PM (Dept Hall 302)</div>
-                  <div>Contact: {currentSubject.faculty.toLowerCase().replace(/[^a-z]/g, '')}@bmsce.ac.in</div>
+                  <div>Contact: {(currentSubject.faculty || 'faculty').toLowerCase().replace(/[^a-z]/g, '')}@bmsce.ac.in</div>
                 </div>
               </div>
             </div>
