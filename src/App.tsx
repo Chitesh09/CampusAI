@@ -20,6 +20,7 @@ import { CampusMap } from './components/campus-map/CampusMap';
 import { ProfessorMode } from './components/professor/ProfessorMode';
 import { CareerAssistant } from './components/career/CareerAssistant';
 import { AdminPortal } from './components/admin/AdminPortal';
+import { AcademicProfile } from './components/profile/AcademicProfile';
 import { motion } from 'framer-motion';
 
 const MainShell: React.FC = () => {
@@ -83,8 +84,9 @@ const MainShell: React.FC = () => {
           {currentView === 'attendance' && <AttendanceDashboard />}
           {currentView === 'study-planner' && <AIStudyPlanner />}
           {currentView === 'campus-map' && <CampusMap />}
-          {currentView === 'professor' && <ProfessorMode />}
           {currentView === 'career' && <CareerAssistant />}
+          {currentView === 'profile' && <AcademicProfile />}
+          {currentView === 'professor' && <ProfessorMode />}
           {currentView === 'admin' && <AdminPortal />}
         </motion.main>
       </div>
