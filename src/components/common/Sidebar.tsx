@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   GraduationCap,
   Sparkles,
+  BookOpen,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -24,6 +25,7 @@ export const Sidebar: React.FC = () => {
   const navigationItems = [
     { id: 'dashboard', label: 'Mission Control', icon: <LayoutDashboard className="w-4 h-4" /> },
     { id: 'ai-chat', label: 'AI Activity Center', icon: <Bot className="w-4 h-4 text-indigo-400" /> },
+    { id: 'subjects', label: 'Subjects Learning Hub', icon: <BookOpen className="w-4 h-4 text-indigo-500" /> },
     { id: 'study-planner', label: 'VTU Study Planner', icon: <Layers className="w-4 h-4 text-purple-400" /> },
     { id: 'doc-intelligence', label: 'Doc Intelligence', icon: <FileText className="w-4 h-4 text-emerald-400" /> },
     { id: 'smart-notes', label: 'Smart Notes', icon: <Bookmark className="w-4 h-4 text-amber-400" /> },

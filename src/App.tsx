@@ -21,6 +21,7 @@ import { ProfessorMode } from './components/professor/ProfessorMode';
 import { CareerAssistant } from './components/career/CareerAssistant';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { AcademicProfile } from './components/profile/AcademicProfile';
+import { SubjectsPage } from './components/subjects/SubjectsPage';
 import { motion } from 'framer-motion';
 
 const MainShell: React.FC = () => {
@@ -76,6 +77,7 @@ const MainShell: React.FC = () => {
         >
           {currentView === 'dashboard' && <DashboardOverview />}
           {currentView === 'ai-chat' && <AIChat />}
+          {currentView === 'subjects' && <SubjectsPage />}
           {currentView === 'doc-intelligence' && <DocIntelligence />}
           {currentView === 'smart-notes' && <SmartNotes />}
           {currentView === 'quiz' && <QuizGenerator />}
