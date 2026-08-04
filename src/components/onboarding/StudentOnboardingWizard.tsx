@@ -23,14 +23,15 @@ export const StudentOnboardingWizard: React.FC = () => {
   const [formData, setFormData] = useState({
     university: currentUser.university || 'VTU (Visvesvaraya Technological University)',
     scheme: currentUser.scheme || '2022 Scheme (CBCS)',
-    collegeName: currentUser.collegeName || 'BMS College of Engineering',
-    branch: currentUser.branch || 'Computer Science & Engineering (CSE)',
-    semesterName: currentUser.semesterName || '6th Semester',
+    collegeName: currentUser.collegeName || 'Atria Institute of Technology, Bengaluru',
+    branch: currentUser.branch || 'Information Science & Engineering (ISE)',
+    semesterName: currentUser.semesterName || '5th Semester',
     section: currentUser.section || 'Section B',
     academicYear: currentUser.academicYear || '2025 - 2026',
   });
 
   const collegesList = [
+    'Atria Institute of Technology, Bengaluru',
     'BMS College of Engineering (BMSCE)',
     'RV College of Engineering (RVCE)',
     'MS Ramaiah Institute of Technology (MSRIT)',
@@ -39,7 +40,6 @@ export const StudentOnboardingWizard: React.FC = () => {
     'PES University (PESU)',
     'CMR Institute of Technology (CMRIT)',
     'Bangalore Institute of Technology (BIT)',
-    'Custom College Name...',
   ];
 
   const branchesList = [

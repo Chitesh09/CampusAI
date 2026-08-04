@@ -85,7 +85,7 @@ export const Sidebar: React.FC = () => {
           <h1 className="text-xs font-black tracking-wider uppercase text-slate-900 dark:text-white">
             CampusCopilot <span className="text-indigo-500">AI</span>
           </h1>
-          <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono">Student OS v2.5</p>
+          <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono">Atria Portal v2.5</p>
         </div>
       </div>
 

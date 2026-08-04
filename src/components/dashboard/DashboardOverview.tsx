@@ -116,14 +116,14 @@ export const DashboardOverview: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center space-x-2">
             <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono text-[11px] font-bold border border-indigo-500/30">
-              Student Dashboard
+              Atria Student Portal
             </span>
             <span className="text-xs font-mono text-slate-400 dark:text-zinc-500">
               {scheme}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Welcome back, {userName} 👋
+            Welcome back to Atria, {userName} 👋
           </h1>
           <p className="text-xs text-slate-600 dark:text-zinc-400 font-medium">
             {college} • {branch} • {semName} ({sec})

@@ -171,7 +171,7 @@ export const VTUNotesLibrary: React.FC = () => {
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center space-x-2">
             <BookOpen className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-            <span>VTU Automated Notes Library</span>
+            <span>Atria Digital Library & VTU Resources</span>
           </h1>
           <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
             Automatically organized by <strong>Branch → Semester → Scheme → Subject → Modules 1-5</strong>.

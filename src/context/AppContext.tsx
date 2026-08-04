@@ -52,20 +52,21 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Official Atria Institute of Technology Default Student Profile
 const initialStudentProfile: UserProfile = {
-  id: 'usr-1',
-  name: 'Rahul Sharma',
-  email: 'rahul.sharma@bmsce.ac.in',
+  id: 'usr-atria-1',
+  name: 'Chithu',
+  email: 'student@atria.edu',
   role: 'student',
   department: 'Information Science & Engineering (ISE)',
-  semester: 7,
-  rollNumber: '1BM22IS104',
+  semester: 5,
+  rollNumber: '1AT22CS045',
   avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
   university: 'VTU (Visvesvaraya Technological University)',
   scheme: '2022 Scheme (CBCS)',
-  collegeName: 'BMS College of Engineering',
+  collegeName: 'Atria Institute of Technology, Bengaluru',
   branch: 'Information Science & Engineering (ISE)',
-  semesterName: '7th Semester',
+  semesterName: '5th Semester',
   section: 'Section B',
   academicYear: '2025 - 2026',
   isOnboarded: false,
@@ -87,12 +88,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [docs, setDocs] = useState<AcademicDoc[]>(mockDocs);
   const [geminiApiKey, setGeminiApiKey] = useState('');
 
-  // Dynamically query official VTU Academic Database strictly for active profile
+  // Dynamically query official VTU Academic Database for Atria profile
   const activeCurriculum = fetchVTUSubjects(
     currentUser.university || 'VTU (Visvesvaraya Technological University)',
     currentUser.scheme || '2022 Scheme (CBCS)',
     currentUser.branch || 'Information Science & Engineering (ISE)',
-    currentUser.semesterName || '7th Semester'
+    currentUser.semesterName || '5th Semester'
   );
 
   const updateUserProfile = (profile: Partial<UserProfile>) => {

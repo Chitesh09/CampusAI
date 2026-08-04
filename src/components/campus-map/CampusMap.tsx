@@ -36,7 +36,7 @@ export const CampusMap: React.FC = () => {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center space-x-2">
             <MapPin className="w-6 h-6 text-indigo-500" />
-            <span>Interactive Campus Route Navigation</span>
+            <span>Atria Campus Map (Anandanagar, Bengaluru)</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-zinc-400">
             Find shortest walking routes between labs, departments, library, hostels & cafeteria.

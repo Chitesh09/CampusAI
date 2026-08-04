@@ -33,7 +33,7 @@ export const CareerAssistant: React.FC = () => {
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center space-x-2">
             <Briefcase className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-            <span>AI Career Assistant & Mock Interviewer</span>
+            <span>Atria Placement & Career Cell</span>
           </h1>
           <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
             ATS Resume scoring, LinkedIn summary generator & interactive technical mock interviews.

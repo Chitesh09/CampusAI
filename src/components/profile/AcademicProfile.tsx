@@ -34,7 +34,7 @@ export const AcademicProfile: React.FC = () => {
   const [profileForm, setProfileForm] = useState({
     university: currentUser.university || 'VTU (Visvesvaraya Technological University)',
     scheme: currentUser.scheme || '2022 Scheme (CBCS)',
-    collegeName: currentUser.collegeName || 'BMS College of Engineering',
+    collegeName: currentUser.collegeName || 'Atria Institute of Technology, Bengaluru',
     branch: currentUser.branch || 'Information Science & Engineering (ISE)',
     semesterName: currentUser.semesterName || '5th Semester',
     section: currentUser.section || 'Section B',

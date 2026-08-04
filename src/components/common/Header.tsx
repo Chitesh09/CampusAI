@@ -35,9 +35,9 @@ export const Header: React.FC = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const college = currentUser.collegeName || 'BMS College of Engineering';
-  const branch = currentUser.branch || 'Computer Science & Engineering (CSE)';
-  const semName = currentUser.semesterName || '6th Semester';
+  const college = currentUser.collegeName || 'Atria Institute of Technology, Bengaluru';
+  const branch = currentUser.branch || 'Information Science & Engineering (ISE)';
+  const semName = currentUser.semesterName || '5th Semester';
   const sec = currentUser.section || 'Section B';
   const scheme = currentUser.scheme || '2022 Scheme (CBCS)';
 

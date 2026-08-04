@@ -46,7 +46,7 @@ export const SmartTimetable: React.FC = () => {
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center space-x-2">
             <Calendar className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-            <span>Smart Timetable & Exam Schedule</span>
+            <span>Atria Academic Calendar & Class Schedule</span>
           </h1>
           <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
             {currentUser.collegeName} • {currentUser.branch} ({currentUser.semesterName})
