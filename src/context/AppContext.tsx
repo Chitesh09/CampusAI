@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useMemo, ReactNode } from 'react';
 import type { UserProfile, Assignment, AttendanceRecord, NotificationItem, AcademicDoc } from '../types';
 import { mockAssignments, mockAttendance, mockNotifications, mockDocs } from '../data/mockData';
-import { fetchVTUSubjects, VTUSubject } from '../data/vtuAcademicDatabase';
+import { fetchVTUSubjects, VTUSubject, getAvailableSemesters, getAvailableBranches, SEMESTER_LABELS } from '../data/vtuAcademicDatabase';
+export { getAvailableSemesters, getAvailableBranches, SEMESTER_LABELS };
 
 export type CourseSubject = VTUSubject;
 
@@ -59,16 +60,16 @@ const initialStudentProfile: UserProfile = {
   email: 'student@atria.edu',
   role: 'student',
   department: 'Information Science & Engineering (ISE)',
-  semester: 5,
-  rollNumber: '1AT22CS045',
+  semester: 7,
+  rollNumber: '1AT22IS045',
   avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
   university: 'VTU (Visvesvaraya Technological University)',
   scheme: '2022 Scheme (CBCS)',
   collegeName: 'Atria Institute of Technology, Bengaluru',
   branch: 'Information Science & Engineering (ISE)',
-  semesterName: '5th Semester',
+  semesterName: '7th Semester',
   section: 'Section B',
-  academicYear: '2025 - 2026',
+  academicYear: '2026 - 2027',
   isOnboarded: false,
 };
 
@@ -88,12 +89,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [docs, setDocs] = useState<AcademicDoc[]>(mockDocs);
   const [geminiApiKey, setGeminiApiKey] = useState('');
 
-  // Dynamically query official VTU Academic Database for Atria profile
-  const activeCurriculum = fetchVTUSubjects(
-    currentUser.university || 'VTU (Visvesvaraya Technological University)',
-    currentUser.scheme || '2022 Scheme (CBCS)',
-    currentUser.branch || 'Information Science & Engineering (ISE)',
-    currentUser.semesterName || '5th Semester'
+  // Reactive curriculum — re-queries database whenever profile changes
+  const activeCurriculum = useMemo(
+    () =>
+      fetchVTUSubjects(
+        currentUser.university || 'VTU (Visvesvaraya Technological University)',
+        currentUser.scheme || '2022 Scheme (CBCS)',
+        currentUser.branch || 'Information Science & Engineering (ISE)',
+        currentUser.semesterName || '7th Semester'
+      ),
+    [currentUser.university, currentUser.scheme, currentUser.branch, currentUser.semesterName]
   );
 
   const updateUserProfile = (profile: Partial<UserProfile>) => {
