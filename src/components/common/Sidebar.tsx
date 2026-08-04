@@ -6,7 +6,7 @@ import {
   Calendar,
   FolderTree,
   Bot,
-  FileText,
+  Library,
   BarChart2,
   GraduationCap,
   Sparkles,
@@ -19,6 +19,8 @@ import {
   UserCheck,
   ShieldCheck,
   Bookmark,
+  Building2,
+  Users,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -33,18 +35,20 @@ export const Sidebar: React.FC = () => {
     { id: 'timetable', label: 'Planner', icon: <Calendar className="w-4 h-4 text-purple-400" /> },
     { id: 'vtu-notes', label: 'Notes', icon: <FolderTree className="w-4 h-4 text-emerald-400" /> },
     { id: 'ai-chat', label: 'AI Tutor', icon: <Bot className="w-4 h-4 text-indigo-400" /> },
-    { id: 'doc-intelligence', label: 'Resources', icon: <FileText className="w-4 h-4 text-cyan-400" /> },
+    { id: 'atria-resources', label: 'Resources', icon: <Library className="w-4 h-4 text-cyan-400" /> },
     { id: 'attendance', label: 'Progress', icon: <BarChart2 className="w-4 h-4 text-rose-400" /> },
-    { id: 'profile', label: 'Academic Profile', icon: <GraduationCap className="w-4 h-4 text-indigo-400" /> },
+    { id: 'student-services', label: 'Services', icon: <Building2 className="w-4 h-4 text-amber-400" /> },
   ];
 
   // Secondary Tools (Hidden under Progressive Disclosure Drawer)
   const secondaryTools = [
+    { id: 'profile', label: 'Academic Profile', icon: <GraduationCap className="w-4 h-4 text-indigo-400" /> },
     { id: 'smart-notes', label: 'Smart Notes', icon: <Bookmark className="w-4 h-4 text-amber-400" /> },
     { id: 'quiz', label: 'Quiz Generator', icon: <HelpCircle className="w-4 h-4 text-cyan-400" /> },
     { id: 'assignments', label: 'Assignments', icon: <CheckSquare className="w-4 h-4 text-rose-400" /> },
-    { id: 'campus-map', label: 'Spatial Campus Map', icon: <MapPin className="w-4 h-4 text-indigo-400" /> },
+    { id: 'campus-map', label: 'Campus Map', icon: <MapPin className="w-4 h-4 text-indigo-400" /> },
     { id: 'career', label: 'Career Assistant', icon: <Briefcase className="w-4 h-4 text-amber-400" /> },
+    { id: 'doc-intelligence', label: 'Doc Intelligence', icon: <Users className="w-4 h-4 text-cyan-400" /> },
     { id: 'professor', label: 'Professor Mode', icon: <UserCheck className="w-4 h-4 text-zinc-400" /> },
     { id: 'admin', label: 'System Admin', icon: <ShieldCheck className="w-4 h-4 text-zinc-400" /> },
   ];

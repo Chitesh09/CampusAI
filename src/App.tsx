@@ -23,6 +23,8 @@ import { AdminPortal } from './components/admin/AdminPortal';
 import { AcademicProfile } from './components/profile/AcademicProfile';
 import { SubjectsPage } from './components/subjects/SubjectsPage';
 import { VTUNotesLibrary } from './components/notes-library/VTUNotesLibrary';
+import { AtriaResources } from './components/resources/AtriaResources';
+import { StudentServices } from './components/services/StudentServices';
 import { motion } from 'framer-motion';
 
 const MainShell: React.FC = () => {
@@ -92,6 +94,8 @@ const MainShell: React.FC = () => {
           {currentView === 'profile' && <AcademicProfile />}
           {currentView === 'professor' && <ProfessorMode />}
           {currentView === 'admin' && <AdminPortal />}
+          {currentView === 'atria-resources' && <AtriaResources />}
+          {currentView === 'student-services' && <StudentServices />}
         </motion.main>
       </div>
 
