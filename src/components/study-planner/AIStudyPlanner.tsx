@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Layers,
@@ -97,44 +97,40 @@ export const AIStudyPlanner: React.FC = () => {
   };
 
   // Base Timetable
-  const rawGeneratedPlan = [
-    {
-      day: `Day 1 (${formatDateLabel(startDate, 0)})`,
-      focus: 'DBMS Normalization & B+ Trees',
-      subjectCode: '21CS61',
-      subjectName: 'Database Management Systems',
-      vtuNotes: 'VTU Circle Module 1 & 2 Notes: ER Diagrams, SQL & Normalization',
-      tasks: [
-        { time: '09:00 AM - 11:00 AM', topic: 'BCNF Decomposition & Functional Dependencies', type: 'study' },
-        { time: '11:15 AM - 12:15 PM', topic: 'B+ Tree Node Split Practice Problems', type: 'practice' },
-        { time: '02:00 PM - 03:00 PM', topic: 'Module 1 Quick Quiz & Revision Notes', type: 'revision' },
-      ],
-    },
-    {
-      day: `Day 2 (${formatDateLabel(startDate, 1)})`,
-      focus: 'AI Search Algorithms & Heuristics',
-      subjectCode: '21CS64',
-      subjectName: 'Artificial Intelligence & ML',
-      vtuNotes: 'VTU Circle Module 3 Notes: A* Search, Heuristics & Alpha-Beta Pruning',
-      tasks: [
-        { time: '09:00 AM - 11:00 AM', topic: 'A* Search Admissibility & Consistency', type: 'study' },
-        { time: '11:15 AM - 12:15 PM', topic: 'Alpha-Beta Pruning Tracing Problems', type: 'practice' },
-        { time: '02:00 PM - 03:00 PM', topic: 'AI Lab Code Review & Heuristics', type: 'revision' },
-      ],
-    },
-    {
-      day: `Day 3 (${formatDateLabel(startDate, 2)})`,
-      focus: 'Software Engineering & Agile SDLC',
-      subjectCode: '21CS62',
-      subjectName: 'Software Engineering & SDLC',
-      vtuNotes: 'VTU Circle Module 4 Notes: Agile Scrum, User Stories & Software Testing',
-      tasks: [
-        { time: '09:00 AM - 11:00 AM', topic: 'Requirements Engineering & UML Use Cases', type: 'study' },
-        { time: '11:15 AM - 12:15 PM', topic: 'Black Box vs White Box Test Cases', type: 'practice' },
-        { time: '02:00 PM - 03:00 PM', topic: 'Agile Model Viva Qs', type: 'revision' },
-      ],
-    },
-  ];
+  // Base Timetable generated dynamically from current activeCurriculum
+  const rawGeneratedPlan = useMemo(() => {
+    const plan: any[] = [];
+    const count = Math.min(activeCurriculum.length, 3);
+    for (let idx = 0; idx < count; idx++) {
+      const sub = activeCurriculum[idx];
+      const modTitle1 = sub.modules[0]?.title || 'Module 1 Introduction';
+      const modTitle2 = sub.modules[1]?.title || 'Module 2 Advanced';
+      plan.push({
+        day: `Day ${idx + 1} (${formatDateLabel(startDate, idx)})`,
+        focus: `${sub.name} - ${modTitle1}`,
+        subjectCode: sub.code,
+        subjectName: sub.name,
+        vtuNotes: `VTU Circle ${sub.code} Notes: ${modTitle1} and ${modTitle2}`,
+        tasks: [
+          { time: '09:00 AM - 11:00 AM', topic: `${modTitle1} Core Concepts & Theory`, type: 'study' },
+          { time: '11:15 AM - 12:15 PM', topic: `Practice Problems & Exam Questions`, type: 'practice' },
+          { time: '02:00 PM - 03:00 PM', topic: `Module Summary & Flashcard Revision`, type: 'revision' },
+        ],
+      });
+    }
+    // Fallback if activeCurriculum is empty
+    if (plan.length === 0) {
+      plan.push({
+        day: `Day 1 (${formatDateLabel(startDate, 0)})`,
+        focus: 'Please configure academic subjects',
+        subjectCode: 'N/A',
+        subjectName: 'No Active Subjects',
+        vtuNotes: 'N/A',
+        tasks: [],
+      });
+    }
+    return plan;
+  }, [activeCurriculum, startDate]);
 
   const filteredPlan = selectedSubjectId === 'all'
     ? rawGeneratedPlan
@@ -206,14 +202,14 @@ export const AIStudyPlanner: React.FC = () => {
           <form onSubmit={handleAddSubject} className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-indigo-500/30 flex flex-col sm:flex-row items-center gap-2">
             <input
               type="text"
-              placeholder="Code (e.g., 21CS65)"
+              placeholder="Code (e.g., BCS701)"
               value={newSubjCode}
               onChange={(e) => setNewSubjCode(e.target.value)}
               className="px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white w-full sm:w-36 focus:outline-none"
             />
             <input
               type="text"
-              placeholder="Subject Name (e.g., Cloud Computing & AWS)"
+              placeholder="Subject Name (e.g., Big Data Analytics)"
               value={newSubjName}
               onChange={(e) => setNewSubjName(e.target.value)}
               className="px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs text-slate-900 dark:text-white flex-1 focus:outline-none w-full"
@@ -400,7 +396,7 @@ export const AIStudyPlanner: React.FC = () => {
                 </div>
 
                 <div className="space-y-2.5">
-                  {p.tasks.map((t, idx) => (
+                  {p.tasks.map((t: any, idx: number) => (
                     <div
                       key={idx}
                       className="p-3 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs space-y-1"

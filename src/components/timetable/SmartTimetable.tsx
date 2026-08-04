@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
-import { mockClasses, mockExams } from '../../data/mockData';
 import { Calendar, MapPin, Clock, User } from 'lucide-react';
 
 export const SmartTimetable: React.FC = () => {
@@ -26,18 +25,34 @@ export const SmartTimetable: React.FC = () => {
   ];
 
   // Compute dynamic classes from activeCurriculum
-  const dayClasses = activeCurriculum.slice(0, 4).map((sub, idx) => ({
-    id: `cls-${sub.code}-${selectedDay}`,
-    subjectCode: sub.code,
-    subjectName: sub.name,
-    faculty: sub.faculty || 'Dept Professor',
-    room: timeslots[idx]?.room || 'Hall 301',
-    building: 'Main Block',
-    startTime: timeslots[idx]?.start || '09:00 AM',
-    endTime: timeslots[idx]?.end || '10:00 AM',
-    dayOfWeek: selectedDay,
-    color: colorsList[idx % colorsList.length],
-  }));
+  const dayClasses = useMemo(() => {
+    return activeCurriculum.slice(0, 4).map((sub, idx) => ({
+      id: `cls-${sub.code}-${selectedDay}`,
+      subjectCode: sub.code,
+      subjectName: sub.name,
+      faculty: sub.faculty || 'Dept Professor',
+      room: timeslots[idx]?.room || 'Hall 301',
+      building: 'Main Block',
+      startTime: timeslots[idx]?.start || '09:00 AM',
+      endTime: timeslots[idx]?.end || '10:00 AM',
+      dayOfWeek: selectedDay,
+      color: colorsList[idx % colorsList.length],
+    }));
+  }, [activeCurriculum, selectedDay]);
+
+  // Compute dynamic exams from activeCurriculum
+  const dayExams = useMemo(() => {
+    return activeCurriculum.slice(0, 3).map((sub, idx) => ({
+      id: `ex-${sub.code}`,
+      subject: sub.name,
+      code: sub.code,
+      date: `2026-08-${15 + idx * 3}`,
+      time: idx % 2 === 0 ? '10:00 AM - 01:00 PM' : '02:00 PM - 05:00 PM',
+      room: `Examination Hall ${idx + 1}`,
+      totalMarks: 100,
+      syllabusCovered: `Modules 1 to 4: ${sub.modules[0]?.title || 'Intro'}, ${sub.modules[1]?.title || 'Core Foundations'}.`,
+    }));
+  }, [activeCurriculum]);
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
@@ -133,7 +148,7 @@ export const SmartTimetable: React.FC = () => {
           </h2>
 
           <div className="space-y-3">
-            {mockExams.map((ex) => (
+            {dayExams.map((ex) => (
               <div
                 key={ex.id}
                 className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-3"

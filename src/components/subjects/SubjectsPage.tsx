@@ -29,8 +29,19 @@ export const SubjectsPage: React.FC = () => {
   const subjectsList = activeCurriculum;
 
   const [activeSubjectCode, setActiveSubjectCode] = useState<string>(
-    subjectsList[0]?.code || 'BCS501'
+    subjectsList[0]?.code || ''
   );
+
+  React.useEffect(() => {
+    if (subjectsList.length > 0) {
+      const codes = subjectsList.map((s) => s.code);
+      if (!activeSubjectCode || !codes.includes(activeSubjectCode)) {
+        setActiveSubjectCode(subjectsList[0].code);
+      }
+    } else {
+      setActiveSubjectCode('');
+    }
+  }, [activeCurriculum]);
   const [activeTab, setActiveTab] = useState<
     | 'overview'
     | 'modules'

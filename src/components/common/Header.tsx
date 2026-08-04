@@ -37,7 +37,7 @@ export const Header: React.FC = () => {
 
   const college = currentUser.collegeName || 'Atria Institute of Technology, Bengaluru';
   const branch = currentUser.branch || 'Information Science & Engineering (ISE)';
-  const semName = currentUser.semesterName || '5th Semester';
+  const semName = currentUser.semesterName || '7th Semester';
   const sec = currentUser.section || 'Section B';
   const scheme = currentUser.scheme || '2022 Scheme (CBCS)';
 

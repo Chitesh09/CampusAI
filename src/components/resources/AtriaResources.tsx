@@ -65,12 +65,13 @@ const CATEGORIES = [
 ];
 
 // ─── Mock Resource Data ───────────────────────────────────────────
-const generateResources = (activeCurriculum: any[]): Resource[] => {
+const generateResources = (activeCurriculum: any[], defaultBranch: string, defaultSem: string): Resource[] => {
   const resources: Resource[] = [];
+  const branchShort = defaultBranch.includes('ISE') ? 'ISE' : defaultBranch.includes('CSE') ? 'CSE' : defaultBranch.includes('ECE') ? 'ECE' : 'ISE';
 
   activeCurriculum.forEach((sub, i) => {
-    const sem = '7th Semester';
-    const branch = 'ISE';
+    const sem = defaultSem;
+    const branch = branchShort;
 
     // Dept Notes
     resources.push({
@@ -83,7 +84,7 @@ const generateResources = (activeCurriculum: any[]): Resource[] => {
       module: 'All Modules',
       type: 'pdf',
       size: '4.2 MB',
-      author: sub.faculty || 'Atria ISE Dept',
+      author: sub.faculty || 'Atria Dept',
       uploadedAt: '2026-07-28',
       downloads: 320 + i * 45,
       views: 890 + i * 120,
@@ -129,7 +130,7 @@ const generateResources = (activeCurriculum: any[]): Resource[] => {
     });
 
     // Lab Manuals
-    if (i < 2) {
+    if (sub.code.includes('L')) {
       resources.push({
         id: `lab-${sub.code}-1`,
         title: `${sub.name} – Lab Manual with Programs (VTU Syllabus)`,
@@ -169,32 +170,40 @@ const generateResources = (activeCurriculum: any[]): Resource[] => {
   });
 
   // Mini Projects
-  ['Blockchain Voting DApp', 'Real-time Anomaly Detection with Kafka', 'Cloud-native IoT Dashboard', 'NLP Sentiment Analyzer – React + Python'].forEach((proj, i) => {
+  const baseProjs = activeCurriculum.slice(0, 3).map((s) => `${s.name} Applied Project`);
+  if (baseProjs.length === 0) {
+    baseProjs.push('Blockchain Verification DApp', 'IoT Temperature Monitoring System');
+  }
+  baseProjs.forEach((proj, i) => {
     resources.push({
       id: `proj-${i}`,
       title: proj,
       category: 'mini-projects',
-      branch: 'ISE',
-      semester: '7th Semester',
+      branch: branchShort,
+      semester: defaultSem,
       subject: 'Mini Project',
       module: 'Project',
       type: 'doc',
-      author: 'Atria ISE Dept',
+      author: 'Atria Dept',
       uploadedAt: '2026-07-25',
       downloads: 85 + i * 20,
       views: 310 + i * 60,
-      tags: ['Mini Project', 'ISE', '7th Sem'],
+      tags: ['Mini Project', branchShort, defaultSem],
     });
   });
 
   // Research Papers
-  ['Federated Learning for Privacy-Preserving ML', 'Quantum Computing – Present & Future', 'Edge AI: Deploying ML on IoT Devices'].forEach((paper, i) => {
+  const basePapers = activeCurriculum.slice(0, 3).map((s) => `Deep Study on ${s.name} Architectures`);
+  if (basePapers.length === 0) {
+    basePapers.push('Federated Privacy Systems in ML', 'Edge Computing Architectures');
+  }
+  basePapers.forEach((paper, i) => {
     resources.push({
       id: `research-${i}`,
       title: paper,
       category: 'research',
-      branch: 'ISE',
-      semester: '7th Semester',
+      branch: branchShort,
+      semester: defaultSem,
       subject: 'Research',
       module: 'N/A',
       type: 'pdf',
@@ -208,13 +217,13 @@ const generateResources = (activeCurriculum: any[]): Resource[] => {
   });
 
   // Placement
-  ['Amazon SDE Interview Preparation Kit', 'TCS NQT Aptitude & Coding Guide', 'System Design Primer – FAANG Edition', 'Atria Placement Cell – Company List 2026'].forEach((title, i) => {
+  [`Atria Placement Cell – ${branchShort} Interview Preparation Kit`, 'TCS NQT Aptitude & Coding Guide', 'System Design Primer – FAANG Edition', 'Atria Placement Cell – Company List 2026'].forEach((title, i) => {
     resources.push({
       id: `placement-${i}`,
       title,
       category: 'placement',
-      branch: 'ISE',
-      semester: '7th Semester',
+      branch: branchShort,
+      semester: defaultSem,
       subject: 'Placement',
       module: 'N/A',
       type: i === 3 ? 'doc' : 'pdf',
@@ -234,8 +243,8 @@ const generateResources = (activeCurriculum: any[]): Resource[] => {
       id: `coding-${i}`,
       title,
       category: 'coding',
-      branch: 'ISE',
-      semester: '7th Semester',
+      branch: branchShort,
+      semester: defaultSem,
       subject: 'Coding',
       module: 'N/A',
       type: 'pdf',
@@ -248,7 +257,7 @@ const generateResources = (activeCurriculum: any[]): Resource[] => {
   });
 
   // Clubs & Events
-  resources.push({ id: 'club-1', title: 'IEEE Atria SB – Technical Paper Writing Guide', category: 'clubs', branch: 'ISE', semester: 'All', subject: 'IEEE', module: 'N/A', type: 'pdf', author: 'IEEE Atria SB', uploadedAt: '2026-07-30', downloads: 60, views: 180, tags: ['IEEE', 'Club'] });
+  resources.push({ id: 'club-1', title: 'IEEE Atria SB – Technical Paper Writing Guide', category: 'clubs', branch: branchShort, semester: 'All', subject: 'IEEE', module: 'N/A', type: 'pdf', author: 'IEEE Atria SB', uploadedAt: '2026-07-30', downloads: 60, views: 180, tags: ['IEEE', 'Club'] });
   resources.push({ id: 'ncc-1', title: 'NCC Annual Training Schedule 2026 – Atria', category: 'ncc', branch: 'All', semester: 'All', subject: 'NCC', module: 'N/A', type: 'doc', author: 'NCC Atria Unit', uploadedAt: '2026-08-01', downloads: 30, views: 95, tags: ['NCC', 'Training'] });
   resources.push({ id: 'event-1', title: "Cognition 2026 – Problem Statements & Rules", category: 'tech-events', branch: 'All', semester: 'All', subject: 'TechFest', module: 'N/A', type: 'pdf', author: 'Atria TechFest', uploadedAt: '2026-08-02', downloads: 210, views: 580, starred: true, tags: ['TechFest', 'Events'] });
   resources.push({ id: 'hack-1', title: 'HackAtria 2026 – Themes & Submission Guide', category: 'hackathons', branch: 'All', semester: 'All', subject: 'Hackathon', module: 'N/A', type: 'pdf', author: 'Atria Coding Club', uploadedAt: '2026-08-03', downloads: 175, views: 440, tags: ['Hackathon', '24hr'] });
@@ -276,7 +285,7 @@ export const AtriaResources: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
 
-  const allResources = useMemo(() => generateResources(activeCurriculum), [activeCurriculum]);
+  const allResources = useMemo(() => generateResources(activeCurriculum, currentUser.branch || 'Information Science & Engineering (ISE)', currentUser.semesterName || '7th Semester'), [activeCurriculum, currentUser.branch, currentUser.semesterName]);
 
   const filtered = useMemo(() => {
     let list = allResources;

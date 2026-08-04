@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   FileText,
@@ -38,95 +38,116 @@ export const VTUNotesLibrary: React.FC = () => {
   const selectedScheme = currentUser.scheme || '2022 Scheme (CBCS)';
 
   const subjectsList = activeCurriculum.map((s) => `${s.code} ${s.name}`);
-  const [selectedSubject, setSelectedSubject] = useState(subjectsList[0] || 'BCS501 Database Management Systems');
+  const [selectedSubject, setSelectedSubject] = useState(subjectsList[0] || '');
   const [activeModule, setActiveModule] = useState<number>(1);
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Automated 9 Resource Categories Data for VTU 2022 Scheme
-  const mockVTUResources: VTUResource[] = [
-    {
-      id: 'res-1',
-      title: 'BCS501 Module 1 Official VTU Printed Course Notes.pdf',
-      moduleNum: 1,
-      type: 'pdf',
-      sizeOrDuration: '3.4 MB',
-      authorOrSource: 'VTU Circle Official Notes 2022 Scheme',
-      previewSnippet: 'ER Diagrams, Entity Attributes, Relational Schema Mapping & SQL DDL/DML Commands.',
-    },
-    {
-      id: 'res-2',
-      title: 'BMSCE Topper Handwritten Lecture Notes (Module 1).pdf',
-      moduleNum: 1,
-      type: 'handwritten',
-      sizeOrDuration: '5.1 MB',
-      authorOrSource: 'Rank 1 Student Lecture Scans',
-      previewSnippet: 'Step-by-step ER to Relational Table Conversion Diagrams & Practice Solved Problems.',
-    },
-    {
-      id: 'res-3',
-      title: 'DBMS Module 1 Faculty Presentation Slides.pptx',
-      moduleNum: 1,
-      type: 'ppt',
-      sizeOrDuration: '8.2 MB',
-      authorOrSource: 'Dept Faculty Lecture Deck',
-      previewSnippet: 'Database System Architecture, 3-Schema Architecture & Storage Engine Overview.',
-    },
-    {
-      id: 'res-4',
-      title: 'VTU Lecture Stream: Relational Algebra & ER Modeling',
-      moduleNum: 1,
-      type: 'video',
-      sizeOrDuration: '42 mins',
-      authorOrSource: 'NPTEL / VTU EDUSAT Stream',
-      previewSnippet: 'Video lecture explaining Selection, Projection, Cartesian Product & Natural Join.',
-    },
-    {
-      id: 'res-5',
-      title: 'Module 1 Key Terms & ER Diagram Flashcard Deck',
-      moduleNum: 1,
-      type: 'flashcard',
-      sizeOrDuration: '18 Flip Cards',
-      authorOrSource: 'CampusCopilot AI Auto-Gen',
-      previewSnippet: 'Primary Key vs Candidate Key, Weak Entity Sets & Cardinality Ratios.',
-    },
-    {
-      id: 'res-6',
-      title: 'Gemini 2.5 AI 1-Page Summary & Formula Sheet',
-      moduleNum: 1,
-      type: 'ai_summary',
-      sizeOrDuration: '1 Page CheatSheet',
-      authorOrSource: 'Gemini 2.5 Kernel',
-      previewSnippet: 'Concise 10-minute exam morning revision summary for ER Diagrams & SQL syntax.',
-    },
-    {
-      id: 'res-7',
-      title: 'VTU 1st Internal Assessment Practice MCQs (Module 1)',
-      moduleNum: 1,
-      type: 'mcq',
-      sizeOrDuration: '25 Questions',
-      authorOrSource: 'VTU Question Bank 2022',
-      previewSnippet: 'Multiple choice questions on Relational Integrity Constraints & Keys.',
-    },
-    {
-      id: 'res-8',
-      title: 'VTU Jan 2024 Solved Question Paper (Module 1 Questions)',
-      moduleNum: 1,
-      type: 'pyq',
-      sizeOrDuration: '1.2 MB Solution',
-      authorOrSource: 'VTU Exam Board 2024',
-      previewSnippet: 'Q1(a) Explain 3-Schema Architecture (6M), Q1(b) Draw ER Diagram for Hospital (8M).',
-    },
-    {
-      id: 'res-9',
-      title: '10-Minute Exam Morning Speed Revision Notes',
-      moduleNum: 1,
-      type: 'revision',
-      sizeOrDuration: '2 Pages',
-      authorOrSource: 'VTU Circle Revision Series',
-      previewSnippet: 'Bullet points on SQL Join types (INNER, LEFT, RIGHT, FULL) & Aggregate Functions.',
-    },
-  ];
+  // Sync selected subject if curriculum changes
+  React.useEffect(() => {
+    if (subjectsList.length > 0) {
+      if (!selectedSubject || !subjectsList.includes(selectedSubject)) {
+        setSelectedSubject(subjectsList[0]);
+      }
+    } else {
+      setSelectedSubject('');
+    }
+  }, [activeCurriculum]);
+
+  // Extract code and name from selectedSubject
+  const currentSub = React.useMemo(() => {
+    const code = selectedSubject.split(' ')[0] || '';
+    const name = selectedSubject.substring(code.length).trim() || '';
+    return { code, name };
+  }, [selectedSubject]);
+
+  // Automated 9 Resource Categories Data dynamically generated for the active subject
+  const mockVTUResources: VTUResource[] = useMemo(() => {
+    if (!currentSub.code) return [];
+    return [
+      {
+        id: 'res-1',
+        title: `${currentSub.code} Module ${activeModule} Official VTU Printed Course Notes.pdf`,
+        moduleNum: activeModule,
+        type: 'pdf',
+        sizeOrDuration: '3.4 MB',
+        authorOrSource: 'VTU Circle Official Notes 2022 Scheme',
+        previewSnippet: `Core topics, definitions, structural architectures and key exam derivations for ${currentSub.name} Module ${activeModule}.`,
+      },
+      {
+        id: 'res-2',
+        title: `Atria AIT Topper Handwritten Lecture Notes (Module ${activeModule}).pdf`,
+        moduleNum: activeModule,
+        type: 'handwritten',
+        sizeOrDuration: '5.1 MB',
+        authorOrSource: 'Rank 1 Student Lecture Scans',
+        previewSnippet: `Step-by-step schematic diagrams, formula lists, and practice solved problems for ${currentSub.name}.`,
+      },
+      {
+        id: 'res-3',
+        title: `${currentSub.code} Module ${activeModule} Faculty Presentation Slides.pptx`,
+        moduleNum: activeModule,
+        type: 'ppt',
+        sizeOrDuration: '8.2 MB',
+        authorOrSource: 'Dept Faculty Lecture Deck',
+        previewSnippet: `Lecture slides covering key sections, comparative tables, and summary points of Module ${activeModule}.`,
+      },
+      {
+        id: 'res-4',
+        title: `VTU Lecture Stream: ${currentSub.name} Module ${activeModule}`,
+        moduleNum: activeModule,
+        type: 'video',
+        sizeOrDuration: '42 mins',
+        authorOrSource: 'NPTEL / VTU EDUSAT Stream',
+        previewSnippet: `Video lecture explaining core algorithms and architectures of ${currentSub.name}.`,
+      },
+      {
+        id: 'res-5',
+        title: `Module ${activeModule} Key Terms & Concept Flashcard Deck`,
+        moduleNum: activeModule,
+        type: 'flashcard',
+        sizeOrDuration: '18 Flip Cards',
+        authorOrSource: 'CampusCopilot AI Auto-Gen',
+        previewSnippet: `Interactive flashcards for key terms, definitions and parameters of ${currentSub.name} Module ${activeModule}.`,
+      },
+      {
+        id: 'res-6',
+        title: `Gemini AI 1-Page Summary & Formula Sheet`,
+        moduleNum: activeModule,
+        type: 'ai_summary',
+        sizeOrDuration: '1 Page CheatSheet',
+        authorOrSource: 'Gemini Kernel',
+        previewSnippet: `Concise 10-minute exam morning revision summary for ${currentSub.name} Module ${activeModule}.`,
+      },
+      {
+        id: 'res-7',
+        title: `VTU 1st Internal Assessment Practice MCQs (Module ${activeModule})`,
+        moduleNum: activeModule,
+        type: 'mcq',
+        sizeOrDuration: '25 Questions',
+        authorOrSource: 'VTU Question Bank 2022',
+        previewSnippet: `Multiple choice questions testing core theoretical aspects of ${currentSub.name} Module ${activeModule}.`,
+      },
+      {
+        id: 'res-8',
+        title: `VTU Jan 2024 Solved Question Paper (Module ${activeModule} Questions)`,
+        moduleNum: activeModule,
+        type: 'pyq',
+        sizeOrDuration: '1.2 MB Solution',
+        authorOrSource: 'VTU Exam Board 2024',
+        previewSnippet: `Prescribed exam question solutions and marks distribution for ${currentSub.code} Module ${activeModule}.`,
+      },
+      {
+        id: 'res-9',
+        title: `10-Minute Exam Morning Speed Revision Notes`,
+        moduleNum: activeModule,
+        type: 'revision',
+        sizeOrDuration: '2 Pages',
+        authorOrSource: 'VTU Circle Revision Series',
+        previewSnippet: `Quick bullet points on important formulas, diagrams and theorems for ${currentSub.name}.`,
+      },
+    ];
+  }, [currentSub, activeModule]);
 
   const filteredResources = mockVTUResources.filter((res) => {
     const matchesModule = res.moduleNum === activeModule;

@@ -25,9 +25,9 @@ export const StudentOnboardingWizard: React.FC = () => {
     scheme: currentUser.scheme || '2022 Scheme (CBCS)',
     collegeName: currentUser.collegeName || 'Atria Institute of Technology, Bengaluru',
     branch: currentUser.branch || 'Information Science & Engineering (ISE)',
-    semesterName: currentUser.semesterName || '5th Semester',
+    semesterName: currentUser.semesterName || '7th Semester',
     section: currentUser.section || 'Section B',
-    academicYear: currentUser.academicYear || '2025 - 2026',
+    academicYear: currentUser.academicYear || '2026 - 2027',
   });
 
   const collegesList = [

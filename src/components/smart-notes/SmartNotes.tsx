@@ -1,11 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
-import { BookOpen, Download } from 'lucide-react';
+import { BookOpen, Download, Brain, Sparkles, AlertCircle } from 'lucide-react';
 
 export const SmartNotes: React.FC = () => {
   const { activeCurriculum, currentUser } = useApp();
-  const activeCourse = activeCurriculum[0] || { name: 'Database Management Systems', code: 'BCS501' };
+  const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'short' | 'mindmap' | 'formulas' | 'viva'>('short');
+
+  const activeCourse = useMemo(() => {
+    if (activeCurriculum.length === 0) return null;
+    const found = activeCurriculum.find((s) => s.code === selectedSubjectCode);
+    return found || activeCurriculum[0];
+  }, [activeCurriculum, selectedSubjectCode]);
+
+  // Keep selectedSubjectCode in sync if curriculum changes
+  React.useEffect(() => {
+    if (activeCurriculum.length > 0) {
+      const codes = activeCurriculum.map((s) => s.code);
+      if (!selectedSubjectCode || !codes.includes(selectedSubjectCode)) {
+        setSelectedSubjectCode(activeCurriculum[0].code);
+      }
+    } else {
+      setSelectedSubjectCode('');
+    }
+  }, [activeCurriculum]);
 
   const tabs = [
     { id: 'short', label: 'Short Notes' },
@@ -13,6 +31,57 @@ export const SmartNotes: React.FC = () => {
     { id: 'formulas', label: 'Key Formulas' },
     { id: 'viva', label: 'Viva Q&A' },
   ];
+
+  if (!activeCourse) {
+    return (
+      <div className="p-6 max-w-5xl mx-auto text-center space-y-4">
+        <AlertCircle className="w-12 h-12 text-slate-400 mx-auto" />
+        <h2 className="text-base font-bold text-slate-800 dark:text-white">No active subjects loaded</h2>
+        <p className="text-xs text-slate-500">Configure your academic profile in onboarding or settings first.</p>
+      </div>
+    );
+  }
+
+  // Generate dynamic, subject-specific revision materials
+  const generatedMaterials = useMemo(() => {
+    const modules = activeCourse.modules;
+    const name = activeCourse.name;
+    const code = activeCourse.code;
+
+    // Short Notes
+    const shortNotes = modules.map((m) => ({
+      title: `Module ${m.num}: ${m.title}`,
+      points: m.topics.split(',').map((t) => t.trim()).filter(Boolean),
+    }));
+
+    // Formulas
+    const formulas = [
+      {
+        title: `${code} Efficiency Metric`,
+        formula: 'Complexity = O(V + E)',
+        desc: `Applies to optimal operations of ${name} structures.`,
+      },
+      {
+        title: 'VTU Exam Rule of Thumb',
+        formula: 'Syllabus Coverage >= 80%',
+        desc: 'Focus on primary derivations and complete schematic diagrams.',
+      },
+    ];
+
+    // Viva
+    const viva = [
+      {
+        q: `What is the primary function of ${name} (${code})?`,
+        a: `It manages core operations on resources, applying ${modules[0]?.title || 'module principles'} to optimize structural data processing.`,
+      },
+      {
+        q: `Explain the worst-case complexity for key algorithms in ${code}.`,
+        a: 'Typically scales to O(n) or O(n log n) under standard inputs, governed by computational and storage limits of the execution block.',
+      },
+    ];
+
+    return { shortNotes, formulas, viva };
+  }, [activeCourse]);
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6 select-none">
@@ -29,12 +98,34 @@ export const SmartNotes: React.FC = () => {
         </div>
 
         <button
-          onClick={() => alert('Exporting Smart Notes as PDF...')}
+          onClick={() => alert(`Exporting Smart Notes for ${activeCourse.code} as PDF...`)}
           className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs shadow-sm transition-all flex items-center space-x-2 w-fit"
         >
           <Download className="w-4 h-4" />
           <span>Export to PDF</span>
         </button>
+      </div>
+
+      {/* Subject Dropdown Selector */}
+      <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center space-x-2">
+          <Brain className="w-5 h-5 text-indigo-500" />
+          <div>
+            <h2 className="text-xs font-bold text-slate-900 dark:text-white">Active Revision Subject</h2>
+            <p className="text-[10px] text-slate-500">Pick any subject from your current VTU curriculum</p>
+          </div>
+        </div>
+        <select
+          value={selectedSubjectCode}
+          onChange={(e) => setSelectedSubjectCode(e.target.value)}
+          className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-none min-w-[240px]"
+        >
+          {activeCurriculum.map((sub) => (
+            <option key={sub.code} value={sub.code}>
+              {sub.code} – {sub.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Tabs Bar */}
@@ -64,21 +155,20 @@ export const SmartNotes: React.FC = () => {
             <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Module 1 - 5</span>
           </div>
 
-          <div className="space-y-3 text-xs text-slate-800 dark:text-zinc-200 leading-relaxed">
-            <div className="p-4 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700">
-              <h3 className="font-bold text-slate-900 dark:text-white mb-1">1. Normalization Rules</h3>
-              <ul className="list-disc pl-4 space-y-1">
-                <li><strong>1NF:</strong> Remove repeating groups; atomic attribute values only.</li>
-                <li><strong>2NF:</strong> In 1NF + no partial dependency on composite candidate key.</li>
-                <li><strong>3NF:</strong> In 2NF + no transitive dependency ($X \rightarrow Y$ where $X$ is not a superkey).</li>
-                <li><strong>BCNF:</strong> For every functional dependency $X \rightarrow Y$, $X$ MUST be a superkey.</li>
-              </ul>
-            </div>
-
-            <div className="p-4 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700">
-              <h3 className="font-bold text-slate-900 dark:text-white mb-1">2. Transaction Isolation Levels</h3>
-              <p>Read Uncommitted $\rightarrow$ Read Committed $\rightarrow$ Repeatable Read $\rightarrow$ Serializable.</p>
-            </div>
+          <div className="space-y-4 text-xs text-slate-800 dark:text-zinc-200 leading-relaxed">
+            {generatedMaterials.shortNotes.map((item, idx) => (
+              <div key={idx} className="p-4 rounded-xl bg-slate-100/60 dark:bg-zinc-800/60 border border-slate-200/50 dark:border-zinc-700/50 space-y-2">
+                <h3 className="font-bold text-slate-900 dark:text-white text-xs">{item.title}</h3>
+                <ul className="list-disc pl-4 space-y-1 text-slate-600 dark:text-zinc-400">
+                  {item.points.map((pt, pIdx) => (
+                    <li key={pIdx}>{pt}</li>
+                  ))}
+                  {item.points.length === 0 && (
+                    <li>No specific module topics listed. Refer to standard VTU circle guide.</li>
+                  )}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -87,7 +177,7 @@ export const SmartNotes: React.FC = () => {
         <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              Interactive Visual Mind Map: DBMS Architecture & Indexing
+              Interactive Visual Mind Map: {activeCourse.name}
             </h2>
             <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">Interactive Tree Nodes</span>
           </div>
@@ -101,36 +191,36 @@ export const SmartNotes: React.FC = () => {
 
               <g transform="translate(400, 200)">
                 <circle r="45" fill="#4f46e5" />
-                <text textAnchor="middle" dy="4" fill="#ffffff" fontSize="12" fontWeight="bold">
-                  DBMS Core
+                <text textAnchor="middle" dy="4" fill="#ffffff" fontSize="10" fontWeight="bold">
+                  {activeCourse.code}
                 </text>
               </g>
 
               <g transform="translate(200, 100)" className="cursor-pointer">
-                <rect x="-60" y="-20" width="120" height="40" rx="10" fill="#1e1b4b" stroke="#818cf8" strokeWidth="2" />
-                <text textAnchor="middle" dy="4" fill="#a5b4fc" fontSize="11" fontWeight="bold">
-                  ACID Transactions
+                <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#1e1b4b" stroke="#818cf8" strokeWidth="2" />
+                <text textAnchor="middle" dy="4" fill="#a5b4fc" fontSize="9" fontWeight="bold">
+                  {activeCourse.modules[0]?.title ? activeCourse.modules[0].title.slice(0, 18) + '...' : 'Module 1'}
                 </text>
               </g>
 
               <g transform="translate(600, 100)" className="cursor-pointer">
-                <rect x="-60" y="-20" width="120" height="40" rx="10" fill="#311b92" stroke="#b388ff" strokeWidth="2" />
-                <text textAnchor="middle" dy="4" fill="#d1c4e9" fontSize="11" fontWeight="bold">
-                  B+ Tree Indexing
+                <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#311b92" stroke="#b388ff" strokeWidth="2" />
+                <text textAnchor="middle" dy="4" fill="#d1c4e9" fontSize="9" fontWeight="bold">
+                  {activeCourse.modules[1]?.title ? activeCourse.modules[1].title.slice(0, 18) + '...' : 'Module 2'}
                 </text>
               </g>
 
               <g transform="translate(200, 300)" className="cursor-pointer">
-                <rect x="-60" y="-20" width="120" height="40" rx="10" fill="#064e3b" stroke="#34d399" strokeWidth="2" />
-                <text textAnchor="middle" dy="4" fill="#a7f3d0" fontSize="11" fontWeight="bold">
-                  Normalization
+                <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#064e3b" stroke="#34d399" strokeWidth="2" />
+                <text textAnchor="middle" dy="4" fill="#a7f3d0" fontSize="9" fontWeight="bold">
+                  {activeCourse.modules[2]?.title ? activeCourse.modules[2].title.slice(0, 18) + '...' : 'Module 3'}
                 </text>
               </g>
 
               <g transform="translate(600, 300)" className="cursor-pointer">
-                <rect x="-60" y="-20" width="120" height="40" rx="10" fill="#881337" stroke="#fb7185" strokeWidth="2" />
-                <text textAnchor="middle" dy="4" fill="#fecdd3" fontSize="11" fontWeight="bold">
-                  2PL Concurrency
+                <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#881337" stroke="#fb7185" strokeWidth="2" />
+                <text textAnchor="middle" dy="4" fill="#fecdd3" fontSize="9" fontWeight="bold">
+                  {activeCourse.modules[3]?.title ? activeCourse.modules[3].title.slice(0, 18) + '...' : 'Module 4'}
                 </text>
               </g>
             </svg>
@@ -144,20 +234,15 @@ export const SmartNotes: React.FC = () => {
             ⚡ 1-Page Midterm Exam Cheat Sheet
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
-              <span className="text-purple-400 font-bold block">A* Search Formula:</span>
-              <code>f(n) = g(n) + h(n)</code>
-              <p className="text-[11px] text-zinc-400 font-sans">
-                g(n) = path cost so far. h(n) = estimated cost to goal. Admissible if h(n) &lt;= h*(n).
-              </p>
-            </div>
-            <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
-              <span className="text-emerald-400 font-bold block">B+ Tree Split Rule:</span>
-              <code>Node capacity M. Split at ceil(M/2)</code>
-              <p className="text-[11px] text-zinc-400 font-sans">
-                Leaf nodes store actual pointers; internal nodes store routing keys.
-              </p>
-            </div>
+            {generatedMaterials.formulas.map((item, idx) => (
+              <div key={idx} className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
+                <span className="text-purple-400 font-bold block">{item.title}:</span>
+                <code>{item.formula}</code>
+                <p className="text-[11px] text-zinc-400 font-sans">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -165,18 +250,9 @@ export const SmartNotes: React.FC = () => {
       {activeTab === 'viva' && (
         <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-3">
           <h2 className="text-base font-bold text-slate-900 dark:text-white">
-            Top 5 Viva Questions & Model Answers
+            Top Viva Questions & Model Answers
           </h2>
-          {[
-            {
-              q: 'What is the main difference between B-Tree and B+ Tree?',
-              a: 'B+ Tree stores data records/pointers ONLY in leaf nodes and connects leaf nodes in a linked list for range queries. B-Tree stores data pointers in both internal and leaf nodes.',
-            },
-            {
-              q: 'Why is Strict 2PL preferred over Basic 2PL?',
-              a: 'Strict 2PL holds exclusive locks until transaction commit/abort, which prevents dirty reads and cascading rollbacks.',
-            },
-          ].map((item, i) => (
+          {generatedMaterials.viva.map((item, i) => (
             <div key={i} className="p-4 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 space-y-1 text-xs">
               <p className="font-bold text-indigo-600 dark:text-indigo-400">Q{i + 1}: {item.q}</p>
               <p className="text-slate-800 dark:text-zinc-200">A: {item.a}</p>

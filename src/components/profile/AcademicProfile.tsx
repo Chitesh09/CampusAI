@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { fetchVTUSubjects } from '../../data/vtuAcademicDatabase';
 import {
   GraduationCap,
   Download,
@@ -26,7 +27,7 @@ interface AcademicSubject {
 }
 
 export const AcademicProfile: React.FC = () => {
-  const { currentUser, updateUserProfile } = useApp();
+  const { currentUser, updateUserProfile, activeCurriculum } = useApp();
 
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -36,25 +37,48 @@ export const AcademicProfile: React.FC = () => {
     scheme: currentUser.scheme || '2022 Scheme (CBCS)',
     collegeName: currentUser.collegeName || 'Atria Institute of Technology, Bengaluru',
     branch: currentUser.branch || 'Information Science & Engineering (ISE)',
-    semesterName: currentUser.semesterName || '5th Semester',
+    semesterName: currentUser.semesterName || '7th Semester',
     section: currentUser.section || 'Section B',
-    academicYear: currentUser.academicYear || '2025 - 2026',
+    academicYear: currentUser.academicYear || '2026 - 2027',
   });
 
-  // Default VTU 2022 Scheme ISE Sem 5 Subjects
-  const defaultISESem5Subjects: AcademicSubject[] = [
-    { id: 'sub-1', code: '21IS51', name: 'Software Engineering & SDLC Architecture', credits: 4, type: 'core', enabled: true },
-    { id: 'sub-2', code: '21IS52', name: 'Computer Networks & Protocol Suite', credits: 4, type: 'core', enabled: true },
-    { id: 'sub-3', code: '21IS53', name: 'Database Management Systems', credits: 4, type: 'core', enabled: true },
-    { id: 'sub-4', code: '21IS541', name: 'Cloud Computing & AWS Architecture', credits: 3, type: 'professional_elective', enabled: true },
-    { id: 'sub-5', code: '21IS542', name: 'Cyber Security & Digital Forensics', credits: 3, type: 'professional_elective', enabled: false },
-    { id: 'sub-6', code: '21IS551', name: 'Web Technology & UI/UX Design', credits: 3, type: 'open_elective', enabled: true },
-    { id: 'sub-7', code: '21IS552', name: 'Python Programming for Data Science', credits: 3, type: 'open_elective', enabled: false },
-    { id: 'sub-8', code: '21ISL56', name: 'Computer Networks & DBMS Laboratory', credits: 1.5, type: 'lab', enabled: true },
-    { id: 'sub-9', code: '21ISP57', name: 'Mini Project in Web & Mobile Application Dev', credits: 2, type: 'mini_project', enabled: true },
-  ];
+  // Initialize from global activeCurriculum
+  const [subjectsList, setSubjectsList] = useState<AcademicSubject[]>(() =>
+    activeCurriculum.map((s, idx) => ({
+      id: `sub-${idx + 1}`,
+      code: s.code,
+      name: s.name,
+      credits: s.credits,
+      type: s.code.includes('L')
+        ? 'lab'
+        : s.code.includes('P')
+        ? 'mini_project'
+        : s.code.includes('M')
+        ? 'professional_elective'
+        : 'core',
+      enabled: true,
+    }))
+  );
 
-  const [subjectsList, setSubjectsList] = useState<AcademicSubject[]>(defaultISESem5Subjects);
+  // Synchronize when curriculum changes globally (e.g. from onboarding or other pages)
+  useEffect(() => {
+    setSubjectsList(
+      activeCurriculum.map((s, idx) => ({
+        id: `sub-${idx + 1}`,
+        code: s.code,
+        name: s.name,
+        credits: s.credits,
+        type: s.code.includes('L')
+          ? 'lab'
+          : s.code.includes('P')
+          ? 'mini_project'
+          : s.code.includes('M')
+          ? 'professional_elective'
+          : 'core',
+        enabled: true,
+      }))
+    );
+  }, [activeCurriculum]);
 
   // Custom Subject Form
   const [showAddForm, setShowAddForm] = useState(false);
@@ -64,12 +88,34 @@ export const AcademicProfile: React.FC = () => {
   const [newType, setNewType] = useState<AcademicSubject['type']>('core');
 
   const handleImportVTUSubjects = () => {
-    // Import logic based on selected Branch and Semester
-    if (profileForm.branch.includes('ISE') && profileForm.semesterName.includes('5')) {
-      setSubjectsList(defaultISESem5Subjects);
+    // Dynamic database import
+    const fetched = fetchVTUSubjects(
+      profileForm.university,
+      profileForm.scheme,
+      profileForm.branch,
+      profileForm.semesterName
+    );
+
+    if (fetched && fetched.length > 0) {
+      setSubjectsList(
+        fetched.map((s, idx) => ({
+          id: `sub-imp-${idx + 1}`,
+          code: s.code,
+          name: s.name,
+          credits: s.credits,
+          type: s.code.includes('L')
+            ? 'lab'
+            : s.code.includes('P')
+            ? 'mini_project'
+            : s.code.includes('M')
+            ? 'professional_elective'
+            : 'core',
+          enabled: true,
+        }))
+      );
     } else {
-      // Auto-generate official VTU subject codes for selected branch & semester
-      const semNum = profileForm.semesterName.replace(/\D/g, '') || '5';
+      // Auto-generate official VTU subject codes for selected branch & semester as fallback
+      const semNum = profileForm.semesterName.replace(/\D/g, '') || '7';
       const branchPrefix = profileForm.branch.includes('ISE') ? 'IS' : 'CS';
       setSubjectsList([
         { id: `sub-imp-1`, code: `21${branchPrefix}${semNum}1`, name: `${profileForm.branch.split(' ')[0]} Core Theory 1`, credits: 4, type: 'core', enabled: true },
