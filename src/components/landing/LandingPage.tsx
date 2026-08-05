@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DemoModal } from './DemoModal';
 import {
@@ -9,13 +9,14 @@ import {
   FileText,
   MapPin,
   BarChart2,
-  Calendar,
   CheckCircle2,
+  Globe,
+  Clock,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 export const LandingPage: React.FC = () => {
-  const { setCurrentView, setActiveChatPrompt, setIsAuthModalOpen } = useApp();
+  const { setCurrentView, setIsAuthModalOpen } = useApp();
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [activeQueryIndex, setActiveQueryIndex] = useState(0);
 
@@ -42,12 +43,52 @@ export const LandingPage: React.FC = () => {
     },
   ];
 
+  // Rotate query automatically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveQueryIndex((prev) => (prev + 1) % interactiveQueries.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Framer Motion staggered cinematic variants
+  const heroContainerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const heroItemVariants: Variants = {
+    hidden: { opacity: 0, y: 30, scale: 0.98 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 75,
+        damping: 18,
+      },
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-[#08080a] text-white selection:bg-indigo-500/20 font-sans">
-      {/* Fixed Minimal Top Header */}
-      <header className="fixed top-0 inset-x-0 z-40 h-14 border-b border-white/5 bg-[#08080a]/80 backdrop-blur-md px-6 flex items-center justify-between">
+    <div className="min-h-screen bg-[#08080a] text-white selection:bg-indigo-500/20 font-sans overflow-x-hidden relative">
+      
+      {/* ── Fixed Premium Top Navigation Header ──────────────────────────────── */}
+      <motion.header 
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 90, damping: 20 }}
+        className="fixed top-0 inset-x-0 z-40 h-14 border-b border-white/5 bg-[#08080a]/80 backdrop-blur-md px-6 flex items-center justify-between"
+      >
         <div className="flex items-center space-x-2.5">
-          <div className="w-6 h-6 rounded bg-white text-black flex items-center justify-center font-bold">
+          <div className="w-6 h-6 rounded bg-indigo-600 text-white flex items-center justify-center font-bold shadow-sm shadow-indigo-500/20 animate-pulse">
             <Sparkles className="w-3.5 h-3.5" />
           </div>
           <span className="text-xs font-semibold tracking-tight text-white">CampusCopilot OS</span>
@@ -56,66 +97,100 @@ export const LandingPage: React.FC = () => {
         <div className="flex items-center space-x-4">
           <button
             onClick={() => setIsAuthModalOpen(true)}
-            className="text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+            className="text-xs font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
           >
             Sign In
           </button>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setCurrentView('dashboard')}
-            className="px-3.5 py-1.5 rounded-lg bg-white text-black font-semibold text-xs hover:bg-zinc-100 transition-colors flex items-center space-x-1.5"
+            className="px-3.5 py-1.5 rounded-lg bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-all flex items-center space-x-1.5 shadow-md shadow-white/5 cursor-pointer"
           >
             <span>Launch Platform</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          </motion.button>
         </div>
-      </header>
+      </motion.header>
 
-      {/* CHAPTER 1: FULL VIEWPORT HERO (100vh) */}
-      <section className="h-screen flex flex-col justify-center items-center text-center px-4 max-w-4xl mx-auto pt-14">
+      {/* ── Cinematic Hero Area (100vh) ─────────────────────────────────────────── */}
+      <section className="h-screen flex flex-col justify-center items-center text-center px-4 max-w-4xl mx-auto pt-14 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          variants={heroContainerVariants}
+          initial="hidden"
+          animate="visible"
           className="space-y-6"
         >
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-400">
+          {/* Logo / Badge */}
+          <motion.div variants={heroItemVariants} className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-400">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Google Edu on Air Keynote Release</span>
-          </div>
+            <span>Google Edu Keynote Release</span>
+          </motion.div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            The AI Operating System <br className="hidden sm:inline" />
-            <span className="text-zinc-400 font-normal">for Higher Education</span>
-          </h1>
+          {/* Title */}
+          <motion.h1 
+            variants={heroItemVariants}
+            className="text-4xl sm:text-7xl font-extrabold tracking-tight text-white leading-tight"
+          >
+            The AI Operating System <br />
+            <span className="text-zinc-500 font-normal">for Higher Education</span>
+          </motion.h1>
 
-          <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto leading-relaxed">
+          {/* Subtitle */}
+          <motion.p 
+            variants={heroItemVariants}
+            className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto leading-relaxed"
+          >
             Stop searching across WhatsApp groups, PDFs, portals, and emails. Ask once. Get answers instantly with Gemini.
-          </p>
+          </motion.p>
 
-          <div className="pt-4 flex items-center justify-center space-x-3">
-            <button
+          {/* Buttons */}
+          <motion.div 
+            variants={heroItemVariants}
+            className="pt-4 flex items-center justify-center space-x-3"
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => setCurrentView('dashboard')}
-              className="px-6 py-3 rounded-lg bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-colors flex items-center space-x-2 shadow-lg"
+              className="px-6 py-3.5 rounded-lg bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-500 transition-all flex items-center space-x-2 shadow-lg shadow-indigo-600/30 cursor-pointer"
             >
-              <span>Enter CampusCopilot</span>
+              <span>Enter Workspace</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setIsDemoModalOpen(true)}
-              className="px-5 py-3 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 font-medium text-xs hover:bg-zinc-800 transition-colors flex items-center space-x-2"
+              className="px-5 py-3.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 font-medium text-xs hover:bg-zinc-800 transition-colors flex items-center space-x-2 cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-zinc-300" />
-              <span>Watch Keynote</span>
-            </button>
-          </div>
+              <span>Watch Demo</span>
+            </motion.button>
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.4 }}
+          transition={{ delay: 1.5, duration: 0.8 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center space-y-1.5 text-[10px] font-mono text-zinc-500"
+        >
+          <span>Scroll to Explore</span>
+          <motion.div 
+            animate={{ y: [0, 6, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+            className="w-1 h-3 rounded-full bg-zinc-500"
+          />
         </motion.div>
       </section>
 
-      {/* CHAPTER 2: INTERACTIVE OPERATING SYSTEM TERMINAL STREAM */}
-      <section className="py-24 px-4 max-w-5xl mx-auto border-t border-white/5 space-y-12">
+      {/* ── Cinematic Section 1: Natural Language Core Terminal ────────────────────── */}
+      <section className="py-24 px-4 max-w-5xl mx-auto border-t border-white/5 space-y-12 relative z-10">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-indigo-400">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-indigo-400 font-bold">
             Chapter 01 • Natural Language Core
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
@@ -127,7 +202,13 @@ export const LandingPage: React.FC = () => {
         </div>
 
         {/* Terminal Window */}
-        <div className="rounded-2xl border border-zinc-800 bg-[#0d0d10] overflow-hidden shadow-2xl">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ type: 'spring', stiffness: 60, damping: 15 }}
+          className="rounded-2xl border border-zinc-800 bg-[#0d0d10] overflow-hidden shadow-2xl"
+        >
           <div className="px-4 py-3 border-b border-zinc-800 bg-[#121216] flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
@@ -148,10 +229,10 @@ export const LandingPage: React.FC = () => {
                 <button
                   key={q.prompt}
                   onClick={() => setActiveQueryIndex(idx)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-mono whitespace-nowrap transition-colors ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-mono whitespace-nowrap transition-all duration-300 cursor-pointer ${
                     activeQueryIndex === idx
-                      ? 'bg-zinc-800 text-white font-semibold border border-zinc-700'
-                      : 'text-zinc-500 hover:text-zinc-300'
+                      ? 'bg-indigo-600 text-white font-semibold border border-indigo-500 shadow-lg shadow-indigo-600/10'
+                      : 'text-zinc-500 hover:text-zinc-300 bg-zinc-900/50 border border-zinc-800/40'
                   }`}
                 >
                   ${q.prompt}
@@ -159,28 +240,39 @@ export const LandingPage: React.FC = () => {
               ))}
             </div>
 
-            {/* Query Output Display */}
-            <div className="space-y-3 font-mono text-xs">
-              <div className="flex items-center space-x-2 text-indigo-400">
-                <span>&gt; Query:</span>
-                <span className="text-white font-semibold">"{interactiveQueries[activeQueryIndex].prompt}"</span>
-              </div>
+            {/* Query Output Display with slide-fade transition */}
+            <div className="space-y-3 font-mono text-xs h-32 relative">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeQueryIndex}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute inset-x-0 top-0 space-y-3"
+                >
+                  <div className="flex items-center space-x-2 text-indigo-400">
+                    <span>&gt; Query:</span>
+                    <span className="text-white font-semibold">"{interactiveQueries[activeQueryIndex].prompt}"</span>
+                  </div>
 
-              <div className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-300 leading-relaxed">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
-                  [{interactiveQueries[activeQueryIndex].tag}]
-                </span>
-                {interactiveQueries[activeQueryIndex].response}
-              </div>
+                  <div className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-300 leading-relaxed">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
+                      [{interactiveQueries[activeQueryIndex].tag}]
+                    </span>
+                    {interactiveQueries[activeQueryIndex].response}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* CHAPTER 3: KNOWLEDGE SYNTHESIS & DOC INTELLIGENCE */}
-      <section className="py-24 px-4 max-w-5xl mx-auto border-t border-white/5 space-y-12">
+      {/* ── Cinematic Section 2: Knowledge Synthesis ────────────────────── */}
+      <section className="py-24 px-4 max-w-5xl mx-auto border-t border-white/5 space-y-12 relative z-10">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
             Chapter 02 • Knowledge Synthesis
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
@@ -191,85 +283,120 @@ export const LandingPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-            <FileText className="w-5 h-5 text-indigo-400" />
-            <h3 className="text-sm font-bold text-white">1. Multi-Format Ingestion</h3>
-            <p className="text-zinc-400 leading-relaxed">
-              Upload PDF lecture slides, DOCX manuals, PPT presentations, or handwritten image notes.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-            <Sparkles className="w-5 h-5 text-purple-400" />
-            <h3 className="text-sm font-bold text-white">2. Automatic Extraction</h3>
-            <p className="text-zinc-400 leading-relaxed">
-              Gemini extracts core theorems, functional dependencies, formulas, and submission deadlines.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            <h3 className="text-sm font-bold text-white">3. Auto Quiz & Mind Maps</h3>
-            <p className="text-zinc-400 leading-relaxed">
-              Auto-generate 5-minute practice quizzes and interactive visual mind map node trees.
-            </p>
-          </div>
-        </div>
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+          }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs"
+        >
+          {[
+            { icon: <FileText className="w-5 h-5 text-indigo-400" />, title: '1. Multi-Format Ingestion', desc: 'Upload PDF lecture slides, DOCX manuals, PPT presentations, or handwritten image notes.' },
+            { icon: <Sparkles className="w-5 h-5 text-purple-400" />, title: '2. Automatic Extraction', desc: 'Gemini extracts core theorems, functional dependencies, formulas, and submission deadlines.' },
+            { icon: <CheckCircle2 className="w-5 h-5 text-emerald-400" />, title: '3. Auto Quiz & Mind Maps', desc: 'Auto-generate 5-minute practice quizzes and interactive visual mind map node trees.' }
+          ].map((item, idx) => (
+            <motion.div
+              key={idx}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 80, damping: 15 } }
+              }}
+              className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 hover:border-zinc-700 transition-colors space-y-3"
+            >
+              {item.icon}
+              <h3 className="text-sm font-bold text-white">{item.title}</h3>
+              <p className="text-zinc-400 leading-relaxed">{item.desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
       </section>
 
-      {/* CHAPTER 4: SPATIAL TWIN & ATTENDANCE SAFETY */}
-      <section className="py-24 px-4 max-w-5xl mx-auto border-t border-white/5 space-y-12">
+      {/* ── Cinematic Section 3: Navigation & Safety ────────────────────── */}
+      <section className="py-24 px-4 max-w-5xl mx-auto border-t border-white/5 space-y-12 relative z-10">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-amber-400">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-amber-400 font-bold">
             Chapter 03 • Spatial & Attendance Safety
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
             Campus Route Map & Safe Bunk Predictor
           </h2>
           <p className="text-xs text-zinc-400">
-            Never get lost finding Lab 5 and never risk debarment due to low attendance.
+            Never get lost finding classes and never risk debarment due to low attendance.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-          <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-100px' }}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+          }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs"
+        >
+          <motion.div 
+            variants={{
+              hidden: { opacity: 0, x: -30 },
+              visible: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 70, damping: 15 } }
+            }}
+            className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 hover:border-zinc-700 transition-colors space-y-4"
+          >
             <MapPin className="w-5 h-5 text-indigo-400" />
             <h3 className="text-sm font-bold text-white">Turn-by-Turn Campus Navigation</h3>
             <p className="text-zinc-400 leading-relaxed">
               Click any class in your timetable to get exact walking steps, building floors, and walk times from your current location.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-4">
+          <motion.div 
+            variants={{
+              hidden: { opacity: 0, x: 30 },
+              visible: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 70, damping: 15 } }
+            }}
+            className="p-6 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 hover:border-zinc-700 transition-colors space-y-4"
+          >
             <BarChart2 className="w-5 h-5 text-amber-400" />
             <h3 className="text-sm font-bold text-white">Safe Bunk Calculator</h3>
             <p className="text-zinc-400 leading-relaxed">
               Simulate missing upcoming lectures and calculate exact safe limits before your attendance drops below 75%.
             </p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
-      {/* CHAPTER 5: SEAMLESS WORKSPACE ENTRANCE CTA */}
-      <section className="py-24 px-4 max-w-3xl mx-auto text-center border-t border-white/5 space-y-6">
-        <h2 className="text-3xl font-extrabold text-white">
-          Ready to Upgrade Your Academic Life?
-        </h2>
-        <p className="text-xs text-zinc-400 max-w-md mx-auto">
-          Built for college students, professors, and registrars. Experience CampusCopilot today.
-        </p>
-        <button
-          onClick={() => setCurrentView('dashboard')}
-          className="px-8 py-3.5 rounded-lg bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-colors inline-flex items-center space-x-2 shadow-xl"
+      {/* ── Cinematic Section 4: Seamless Entrance CTA ────────────────── */}
+      <section className="py-24 px-4 max-w-3xl mx-auto text-center border-t border-white/5 space-y-6 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ type: 'spring', stiffness: 60, damping: 15 }}
+          className="space-y-6"
         >
-          <span>Launch CampusCopilot Workspace</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+          <h2 className="text-3xl font-extrabold text-white">
+            Ready to Upgrade Your Academic Life?
+          </h2>
+          <p className="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
+            Built for college students, professors, and registrars. Experience CampusCopilot today.
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setCurrentView('dashboard')}
+            className="px-8 py-4 rounded-lg bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-all inline-flex items-center space-x-2 shadow-xl cursor-pointer"
+          >
+            <span>Launch CampusCopilot Workspace</span>
+            <ArrowRight className="w-4 h-4" />
+          </motion.button>
+        </motion.div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-6 border-t border-white/5 text-center text-xs text-zinc-600">
+      <footer className="py-8 px-6 border-t border-white/5 text-center text-xs text-zinc-600 relative z-10">
         CampusCopilot AI © 2026. Built for Google's Edu on Air Event.
       </footer>
 

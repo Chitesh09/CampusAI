@@ -308,12 +308,12 @@ export const AIStudyPlanner: React.FC = () => {
           <button
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 min-h-[40px]"
+            className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 min-h-[40px] cursor-pointer"
           >
             {isGenerating ? (
               <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Generating VTU Plan...</span>
+                <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                <span>Assembling Study Streams...</span>
               </>
             ) : (
               <>
@@ -348,8 +348,40 @@ export const AIStudyPlanner: React.FC = () => {
         </div>
       </div>
 
+      {/* Shimmering Loader Placeholder */}
+      {isGenerating && (
+        <div className="space-y-4">
+          <div className="h-4 w-48 shimmer-bg rounded opacity-60" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="p-5 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] space-y-4 shadow-sm">
+                <div className="pb-3 border-b border-slate-100 dark:border-zinc-800 space-y-2">
+                  <div className="flex justify-between">
+                    <div className="h-3 w-16 shimmer-bg rounded opacity-50" />
+                    <div className="h-3 w-12 shimmer-bg rounded opacity-50" />
+                  </div>
+                  <div className="h-4 w-32 shimmer-bg rounded opacity-75" />
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 space-y-1">
+                  <div className="h-3 w-16 shimmer-bg rounded opacity-50" />
+                  <div className="h-3 w-28 shimmer-bg rounded opacity-50" />
+                </div>
+                <div className="space-y-2.5">
+                  {[1, 2, 3].map((taskNum) => (
+                    <div key={taskNum} className="p-3 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 space-y-1">
+                      <div className="h-2.5 w-12 shimmer-bg rounded opacity-50" />
+                      <div className="h-3.5 w-24 shimmer-bg rounded opacity-50" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Generated VTU Plan Output */}
-      {hasGenerated && (
+      {hasGenerated && !isGenerating && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">

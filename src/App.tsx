@@ -25,7 +25,7 @@ import { SubjectsPage } from './components/subjects/SubjectsPage';
 import { VTUNotesLibrary } from './components/notes-library/VTUNotesLibrary';
 import { AtriaResources } from './components/resources/AtriaResources';
 import { StudentServices } from './components/services/StudentServices';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MainShell: React.FC = () => {
   const { currentView, currentUser, isOnboardingOpen } = useApp();
@@ -70,33 +70,36 @@ const MainShell: React.FC = () => {
           <Header />
         </motion.div>
 
-        {/* Self-assembling Main View Content */}
-        <motion.main
-          key={currentView}
-          initial={{ y: 15, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 350, damping: 25, delay: 0.15 }}
-          className="flex-1 pb-16"
-        >
-          {currentView === 'dashboard' && <DashboardOverview />}
-          {currentView === 'ai-chat' && <AIChat />}
-          {currentView === 'vtu-notes' && <VTUNotesLibrary />}
-          {currentView === 'subjects' && <SubjectsPage />}
-          {currentView === 'doc-intelligence' && <DocIntelligence />}
-          {currentView === 'smart-notes' && <SmartNotes />}
-          {currentView === 'quiz' && <QuizGenerator />}
-          {currentView === 'assignments' && <AssignmentTracker />}
-          {currentView === 'timetable' && <SmartTimetable />}
-          {currentView === 'attendance' && <AttendanceDashboard />}
-          {currentView === 'study-planner' && <AIStudyPlanner />}
-          {currentView === 'campus-map' && <CampusMap />}
-          {currentView === 'career' && <CareerAssistant />}
-          {currentView === 'profile' && <AcademicProfile />}
-          {currentView === 'professor' && <ProfessorMode />}
-          {currentView === 'admin' && <AdminPortal />}
-          {currentView === 'atria-resources' && <AtriaResources />}
-          {currentView === 'student-services' && <StudentServices />}
-        </motion.main>
+        {/* Self-assembling Main View Content with layout morph and springs */}
+        <AnimatePresence mode="wait">
+          <motion.main
+            key={currentView}
+            initial={{ y: 15, opacity: 0, filter: 'blur(4px)' }}
+            animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+            exit={{ y: -15, opacity: 0, filter: 'blur(4px)' }}
+            transition={{ type: 'spring', stiffness: 200, damping: 22 }}
+            className="flex-1 pb-16"
+          >
+            {currentView === 'dashboard' && <DashboardOverview />}
+            {currentView === 'ai-chat' && <AIChat />}
+            {currentView === 'vtu-notes' && <VTUNotesLibrary />}
+            {currentView === 'subjects' && <SubjectsPage />}
+            {currentView === 'doc-intelligence' && <DocIntelligence />}
+            {currentView === 'smart-notes' && <SmartNotes />}
+            {currentView === 'quiz' && <QuizGenerator />}
+            {currentView === 'assignments' && <AssignmentTracker />}
+            {currentView === 'timetable' && <SmartTimetable />}
+            {currentView === 'attendance' && <AttendanceDashboard />}
+            {currentView === 'study-planner' && <AIStudyPlanner />}
+            {currentView === 'campus-map' && <CampusMap />}
+            {currentView === 'career' && <CareerAssistant />}
+            {currentView === 'profile' && <AcademicProfile />}
+            {currentView === 'professor' && <ProfessorMode />}
+            {currentView === 'admin' && <AdminPortal />}
+            {currentView === 'atria-resources' && <AtriaResources />}
+            {currentView === 'student-services' && <StudentServices />}
+          </motion.main>
+        </AnimatePresence>
       </div>
 
       <CommandPalette />

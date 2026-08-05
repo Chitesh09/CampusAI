@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useCountUp } from '../../hooks/useCountUp';
 import {
@@ -51,6 +51,23 @@ export const DashboardOverview: React.FC = () => {
 
   const [promptInput, setPromptInput] = useState('');
   const [activeNewsTab, setActiveNewsTab] = useState<'announcements' | 'placement' | 'department' | 'events'>('announcements');
+
+  const placeholders = [
+    "Search Notes (e.g. DBMS)...",
+    "Generate Quiz for ADA...",
+    "Ask AI: Explain Module 2...",
+    "Find Classroom: Lab 5...",
+    "Open Module 4: Cloud...",
+    "Check Attendance status..."
+  ];
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  useEffect(() => {
+    const pInterval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+    }, 3000);
+    return () => clearInterval(pInterval);
+  }, []);
 
   const college = currentUser.collegeName || 'Atria Institute of Technology, Bengaluru';
   const branch = currentUser.branch || 'Information Science & Engineering (ISE)';
@@ -221,8 +238,8 @@ export const DashboardOverview: React.FC = () => {
                 type="text"
                 value={promptInput}
                 onChange={(e) => setPromptInput(e.target.value)}
-                placeholder="Ask Atria AI Copilot..."
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 text-xs font-medium backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white/30"
+                placeholder={placeholders[placeholderIndex]}
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 text-xs font-medium backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300"
               />
             </div>
             <button
@@ -240,8 +257,11 @@ export const DashboardOverview: React.FC = () => {
       ═══════════════════════════════════════════════ */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Today's Classes */}
-        <div
-          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm cursor-pointer hover:border-indigo-500/50 transition-all group"
+        <motion.div
+          whileHover={{ y: -4, scale: 1.015, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05)" }}
+          whileTap={{ scale: 0.985 }}
+          transition={{ type: "spring", stiffness: 350, damping: 25 }}
+          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm cursor-pointer hover:border-indigo-500/50 transition-colors group"
           onClick={() => setCurrentView('timetable')}
         >
           <div className="flex items-start justify-between mb-3">
@@ -253,11 +273,14 @@ export const DashboardOverview: React.FC = () => {
           <div className="text-2xl font-black text-slate-900 dark:text-white">{countClasses}</div>
           <div className="text-xs font-semibold text-slate-600 dark:text-zinc-400 mt-0.5">Today's Classes</div>
           <div className="text-[10px] text-indigo-500 dark:text-indigo-400 font-mono mt-1">View Atria Schedule →</div>
-        </div>
+        </motion.div>
 
         {/* Today's Attendance */}
-        <div
-          className={`p-4 rounded-2xl border shadow-sm cursor-pointer transition-all group ${
+        <motion.div
+          whileHover={{ y: -4, scale: 1.015, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05)" }}
+          whileTap={{ scale: 0.985 }}
+          transition={{ type: "spring", stiffness: 350, damping: 25 }}
+          className={`p-4 rounded-2xl border shadow-sm cursor-pointer transition-colors group ${
             overallAttendancePct >= 75
               ? 'bg-white dark:bg-[#111114] border-slate-200 dark:border-white/[0.06] hover:border-emerald-500/50'
               : 'bg-rose-500/5 border-rose-500/30 hover:border-rose-500/60'
@@ -275,11 +298,14 @@ export const DashboardOverview: React.FC = () => {
           <div className={`text-[10px] font-mono mt-1 ${overallAttendancePct >= 75 ? 'text-emerald-500' : 'text-rose-500'}`}>
             {overallAttendancePct >= 75 ? '✓ Safe • View Details →' : '⚠ Below 75% Alert!'}
           </div>
-        </div>
+        </motion.div>
 
         {/* Upcoming Internal Assessment */}
-        <div
-          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm cursor-pointer hover:border-amber-500/50 transition-all group"
+        <motion.div
+          whileHover={{ y: -4, scale: 1.015, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05)" }}
+          whileTap={{ scale: 0.985 }}
+          transition={{ type: "spring", stiffness: 350, damping: 25 }}
+          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm cursor-pointer hover:border-amber-500/50 transition-colors group"
           onClick={() => setCurrentView('timetable')}
         >
           <div className="flex items-start justify-between mb-3">
@@ -291,11 +317,14 @@ export const DashboardOverview: React.FC = () => {
           <div className="text-2xl font-black text-slate-900 dark:text-white">{countIADays} Days</div>
           <div className="text-xs font-semibold text-slate-600 dark:text-zinc-400 mt-0.5">1st Internal Assessment</div>
           <div className="text-[10px] text-amber-500 dark:text-amber-400 font-mono mt-1">Aug 15–18 • Atria Exam Hall</div>
-        </div>
+        </motion.div>
 
         {/* Upcoming VTU Exam */}
-        <div
-          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm cursor-pointer hover:border-purple-500/50 transition-all group"
+        <motion.div
+          whileHover={{ y: -4, scale: 1.015, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05)" }}
+          whileTap={{ scale: 0.985 }}
+          transition={{ type: "spring", stiffness: 350, damping: 25 }}
+          className="p-4 rounded-2xl bg-white dark:bg-[#111114] border border-slate-200 dark:border-white/[0.06] shadow-sm cursor-pointer hover:border-purple-500/50 transition-colors group"
           onClick={() => setCurrentView('timetable')}
         >
           <div className="flex items-start justify-between mb-3">
@@ -307,7 +336,7 @@ export const DashboardOverview: React.FC = () => {
           <div className="text-2xl font-black text-slate-900 dark:text-white">{countVTUDays} Days</div>
           <div className="text-xs font-semibold text-slate-600 dark:text-zinc-400 mt-0.5">VTU Semester Exam</div>
           <div className="text-[10px] text-purple-500 dark:text-purple-400 font-mono mt-1">Sept 20, 2026 • VTU Bengaluru</div>
-        </div>
+        </motion.div>
       </motion.div>
 
       {/* ═══════════════════════════════════════════════
