@@ -104,7 +104,7 @@ export const LandingPage: React.FC = () => {
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setCurrentView('dashboard')}
+            onClick={() => setIsAuthModalOpen(true)}
             className="px-3.5 py-1.5 rounded-lg bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-all flex items-center space-x-1.5 shadow-md shadow-white/5 cursor-pointer"
           >
             <span>Launch Platform</span>
@@ -152,7 +152,7 @@ export const LandingPage: React.FC = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => setCurrentView('dashboard')}
+              onClick={() => setIsAuthModalOpen(true)}
               className="px-6 py-3.5 rounded-lg bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-500 transition-all flex items-center space-x-2 shadow-lg shadow-indigo-600/30 cursor-pointer"
             >
               <span>Enter Workspace</span>
@@ -386,7 +386,7 @@ export const LandingPage: React.FC = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => setCurrentView('dashboard')}
+            onClick={() => setIsAuthModalOpen(true)}
             className="px-8 py-4 rounded-lg bg-white text-black font-bold text-xs hover:bg-zinc-100 transition-all inline-flex items-center space-x-2 shadow-xl cursor-pointer"
           >
             <span>Launch CampusCopilot Workspace</span>
@@ -403,7 +403,7 @@ export const LandingPage: React.FC = () => {
       <DemoModal
         isOpen={isDemoModalOpen}
         onClose={() => setIsDemoModalOpen(false)}
-        onLaunchApp={() => setCurrentView('dashboard')}
+        onLaunchApp={() => setIsAuthModalOpen(true)}
       />
     </div>
   );
