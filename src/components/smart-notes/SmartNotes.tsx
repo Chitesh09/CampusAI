@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { BookOpen, Download, Brain, Sparkles, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const SmartNotes: React.FC = () => {
   const { activeCurriculum, currentUser } = useApp();
@@ -35,7 +36,7 @@ export const SmartNotes: React.FC = () => {
   if (!activeCourse) {
     return (
       <div className="p-6 max-w-5xl mx-auto text-center space-y-4">
-        <AlertCircle className="w-12 h-12 text-slate-400 mx-auto" />
+        <AlertCircle className="w-12 h-12 text-slate-400 mx-auto animate-bounce" />
         <h2 className="text-base font-bold text-slate-800 dark:text-white">No active subjects loaded</h2>
         <p className="text-xs text-slate-500">Configure your academic profile in onboarding or settings first.</p>
       </div>
@@ -97,19 +98,21 @@ export const SmartNotes: React.FC = () => {
           </p>
         </div>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.03, y: -1 }}
+          whileTap={{ scale: 0.97 }}
           onClick={() => alert(`Exporting Smart Notes for ${activeCourse.code} as PDF...`)}
-          className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs shadow-sm transition-all flex items-center space-x-2 w-fit"
+          className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs shadow-sm flex items-center space-x-2 w-fit cursor-pointer"
         >
           <Download className="w-4 h-4" />
           <span>Export to PDF</span>
-        </button>
+        </motion.button>
       </div>
 
       {/* Subject Dropdown Selector */}
       <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center space-x-2">
-          <Brain className="w-5 h-5 text-indigo-500" />
+          <Brain className="w-5 h-5 text-indigo-500 animate-pulse" />
           <div>
             <h2 className="text-xs font-bold text-slate-900 dark:text-white">Active Revision Subject</h2>
             <p className="text-[10px] text-slate-500">Pick any subject from your current VTU curriculum</p>
@@ -130,136 +133,185 @@ export const SmartNotes: React.FC = () => {
 
       {/* Tabs Bar */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-zinc-800 no-scrollbar">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-              activeTab === tab.id
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`relative px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition-colors duration-300 ${
+                isActive
+                  ? 'text-white border border-transparent'
+                  : 'bg-slate-150 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-white'
+              }`}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="activeSmartNotesTabPill"
+                  className="absolute inset-0 bg-indigo-600 rounded-xl"
+                  transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+                />
+              )}
+              <span className="relative z-10">{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Tab Content Display */}
-      {activeTab === 'short' && (
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              {activeCourse.name} ({activeCourse.code}) - Revision Notes
-            </h2>
-            <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Module 1 - 5</span>
-          </div>
-
-          <div className="space-y-4 text-xs text-slate-800 dark:text-zinc-200 leading-relaxed">
-            {generatedMaterials.shortNotes.map((item, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-slate-100/60 dark:bg-zinc-800/60 border border-slate-200/50 dark:border-zinc-700/50 space-y-2">
-                <h3 className="font-bold text-slate-900 dark:text-white text-xs">{item.title}</h3>
-                <ul className="list-disc pl-4 space-y-1 text-slate-600 dark:text-zinc-400">
-                  {item.points.map((pt, pIdx) => (
-                    <li key={pIdx}>{pt}</li>
-                  ))}
-                  {item.points.length === 0 && (
-                    <li>No specific module topics listed. Refer to standard VTU circle guide.</li>
-                  )}
-                </ul>
+      {/* Tab Content Display with Liquid Page Slide Morphs */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+        >
+          {activeTab === 'short' && (
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  {activeCourse.name} ({activeCourse.code}) - Revision Notes
+                </h2>
+                <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Module 1 - 5</span>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {activeTab === 'mindmap' && (
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">
-              Interactive Visual Mind Map: {activeCourse.name}
-            </h2>
-            <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">Interactive Tree Nodes</span>
-          </div>
-
-          <div className="relative aspect-video max-h-96 w-full bg-slate-950 rounded-xl border border-zinc-800 p-4 flex items-center justify-center overflow-hidden">
-            <svg className="w-full h-full" viewBox="0 0 800 400">
-              <line x1="400" y1="200" x2="200" y2="100" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
-              <line x1="400" y1="200" x2="600" y2="100" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
-              <line x1="400" y1="200" x2="200" y2="300" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
-              <line x1="400" y1="200" x2="600" y2="300" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
-
-              <g transform="translate(400, 200)">
-                <circle r="45" fill="#4f46e5" />
-                <text textAnchor="middle" dy="4" fill="#ffffff" fontSize="10" fontWeight="bold">
-                  {activeCourse.code}
-                </text>
-              </g>
-
-              <g transform="translate(200, 100)" className="cursor-pointer">
-                <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#1e1b4b" stroke="#818cf8" strokeWidth="2" />
-                <text textAnchor="middle" dy="4" fill="#a5b4fc" fontSize="9" fontWeight="bold">
-                  {activeCourse.modules[0]?.title ? activeCourse.modules[0].title.slice(0, 18) + '...' : 'Module 1'}
-                </text>
-              </g>
-
-              <g transform="translate(600, 100)" className="cursor-pointer">
-                <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#311b92" stroke="#b388ff" strokeWidth="2" />
-                <text textAnchor="middle" dy="4" fill="#d1c4e9" fontSize="9" fontWeight="bold">
-                  {activeCourse.modules[1]?.title ? activeCourse.modules[1].title.slice(0, 18) + '...' : 'Module 2'}
-                </text>
-              </g>
-
-              <g transform="translate(200, 300)" className="cursor-pointer">
-                <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#064e3b" stroke="#34d399" strokeWidth="2" />
-                <text textAnchor="middle" dy="4" fill="#a7f3d0" fontSize="9" fontWeight="bold">
-                  {activeCourse.modules[2]?.title ? activeCourse.modules[2].title.slice(0, 18) + '...' : 'Module 3'}
-                </text>
-              </g>
-
-              <g transform="translate(600, 300)" className="cursor-pointer">
-                <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#881337" stroke="#fb7185" strokeWidth="2" />
-                <text textAnchor="middle" dy="4" fill="#fecdd3" fontSize="9" fontWeight="bold">
-                  {activeCourse.modules[3]?.title ? activeCourse.modules[3].title.slice(0, 18) + '...' : 'Module 4'}
-                </text>
-              </g>
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'formulas' && (
-        <div className="p-6 rounded-2xl bg-slate-900 text-white border border-zinc-800 shadow-sm space-y-4 font-mono text-xs">
-          <h2 className="text-sm font-bold text-indigo-400 font-sans">
-            ⚡ 1-Page Midterm Exam Cheat Sheet
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {generatedMaterials.formulas.map((item, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
-                <span className="text-purple-400 font-bold block">{item.title}:</span>
-                <code>{item.formula}</code>
-                <p className="text-[11px] text-zinc-400 font-sans">
-                  {item.desc}
-                </p>
+              <div className="space-y-4 text-xs text-slate-800 dark:text-zinc-200 leading-relaxed">
+                {generatedMaterials.shortNotes.map((item, idx) => (
+                  <div key={idx} className="p-4 rounded-xl bg-slate-100/65 dark:bg-zinc-800/65 border border-slate-250 dark:border-zinc-700/50 space-y-2">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-xs">{item.title}</h3>
+                    <ul className="list-disc pl-4 space-y-1 text-slate-655 dark:text-zinc-400">
+                      {item.points.map((pt, pIdx) => (
+                        <li key={pIdx}>{pt}</li>
+                      ))}
+                      {item.points.length === 0 && (
+                        <li>No specific module topics listed. Refer to standard VTU circle guide.</li>
+                      )}
+                    </ul>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'viva' && (
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-3">
-          <h2 className="text-base font-bold text-slate-900 dark:text-white">
-            Top Viva Questions & Model Answers
-          </h2>
-          {generatedMaterials.viva.map((item, i) => (
-            <div key={i} className="p-4 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 space-y-1 text-xs">
-              <p className="font-bold text-indigo-600 dark:text-indigo-400">Q{i + 1}: {item.q}</p>
-              <p className="text-slate-800 dark:text-zinc-200">A: {item.a}</p>
             </div>
-          ))}
-        </div>
-      )}
+          )}
+
+          {activeTab === 'mindmap' && (
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  Interactive Visual Mind Map: {activeCourse.name}
+                </h2>
+                <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">Interactive Tree Nodes</span>
+              </div>
+
+              <div className="relative aspect-video max-h-96 w-full bg-slate-950 rounded-xl border border-zinc-850 p-4 flex items-center justify-center overflow-hidden">
+                <svg className="w-full h-full" viewBox="0 0 800 400">
+                  <line x1="400" y1="200" x2="200" y2="100" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
+                  <line x1="400" y1="200" x2="600" y2="100" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
+                  <line x1="400" y1="200" x2="200" y2="300" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
+                  <line x1="400" y1="200" x2="600" y2="300" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
+
+                  <motion.g 
+                    transform="translate(400, 200)"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <circle r="45" fill="#4f46e5" className="shadow-lg" />
+                    <text textAnchor="middle" dy="4" fill="#ffffff" fontSize="10" fontWeight="bold">
+                      {activeCourse.code}
+                    </text>
+                  </motion.g>
+
+                  <motion.g 
+                    transform="translate(200, 100)" 
+                    whileHover={{ scale: 1.03 }}
+                    className="cursor-pointer"
+                  >
+                    <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#1e1b4b" stroke="#818cf8" strokeWidth="2" />
+                    <text textAnchor="middle" dy="4" fill="#a5b4fc" fontSize="9" fontWeight="bold">
+                      {activeCourse.modules[0]?.title ? activeCourse.modules[0].title.slice(0, 18) + '...' : 'Module 1'}
+                    </text>
+                  </motion.g>
+
+                  <motion.g 
+                    transform="translate(600, 100)" 
+                    whileHover={{ scale: 1.03 }}
+                    className="cursor-pointer"
+                  >
+                    <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#311b92" stroke="#b388ff" strokeWidth="2" />
+                    <text textAnchor="middle" dy="4" fill="#d1c4e9" fontSize="9" fontWeight="bold">
+                      {activeCourse.modules[1]?.title ? activeCourse.modules[1].title.slice(0, 18) + '...' : 'Module 2'}
+                    </text>
+                  </motion.g>
+
+                  <motion.g 
+                    transform="translate(200, 300)" 
+                    whileHover={{ scale: 1.03 }}
+                    className="cursor-pointer"
+                  >
+                    <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#064e3b" stroke="#34d399" strokeWidth="2" />
+                    <text textAnchor="middle" dy="4" fill="#a7f3d0" fontSize="9" fontWeight="bold">
+                      {activeCourse.modules[2]?.title ? activeCourse.modules[2].title.slice(0, 18) + '...' : 'Module 3'}
+                    </text>
+                  </motion.g>
+
+                  <motion.g 
+                    transform="translate(600, 300)" 
+                    whileHover={{ scale: 1.03 }}
+                    className="cursor-pointer"
+                  >
+                    <rect x="-70" y="-20" width="140" height="40" rx="10" fill="#881337" stroke="#fb7185" strokeWidth="2" />
+                    <text textAnchor="middle" dy="4" fill="#fecdd3" fontSize="9" fontWeight="bold">
+                      {activeCourse.modules[3]?.title ? activeCourse.modules[3].title.slice(0, 18) + '...' : 'Module 4'}
+                    </text>
+                  </motion.g>
+                </svg>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'formulas' && (
+            <div className="p-6 rounded-2xl bg-slate-900 text-white border border-zinc-800 shadow-sm space-y-4 font-mono text-xs">
+              <h2 className="text-sm font-bold text-indigo-400 font-sans">
+                ⚡ 1-Page Midterm Exam Cheat Sheet
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {generatedMaterials.formulas.map((item, idx) => (
+                  <motion.div 
+                    key={idx} 
+                    whileHover={{ y: -2 }}
+                    className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2"
+                  >
+                    <span className="text-purple-400 font-bold block">{item.title}:</span>
+                    <code>{item.formula}</code>
+                    <p className="text-[11px] text-zinc-400 font-sans mt-2">
+                      {item.desc}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'viva' && (
+            <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm space-y-3">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                Top Viva Questions & Model Answers
+              </h2>
+              <div className="space-y-3">
+                {generatedMaterials.viva.map((item, i) => (
+                  <motion.div 
+                    key={i} 
+                    whileHover={{ x: 2 }}
+                    className="p-4 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 space-y-1 text-xs"
+                  >
+                    <p className="font-bold text-indigo-600 dark:text-indigo-400">Q{i + 1}: {item.q}</p>
+                    <p className="text-slate-800 dark:text-zinc-200">A: {item.a}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

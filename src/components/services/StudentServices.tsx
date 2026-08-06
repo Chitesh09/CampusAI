@@ -224,19 +224,27 @@ export const StudentServices: React.FC = () => {
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 no-scrollbar">
           {SERVICES_CATEGORIES.map((cat) => {
             const count = cat.id === 'all' ? SERVICES_DATA.length : SERVICES_DATA.filter((s) => s.category === cat.id).length;
+            const isActive = selectedCategory === cat.id;
             return (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border transition-all ${
-                  selectedCategory === cat.id
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:border-indigo-400/50'
+                className={`relative flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition-colors duration-300 ${
+                  isActive
+                    ? 'text-white border border-transparent'
+                    : 'bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-white'
                 }`}
               >
-                <span className={cat.color}>{cat.icon}</span>
-                <span>{cat.label}</span>
-                <span className={`text-[9px] font-black px-1 py-0.5 rounded ${selectedCategory === cat.id ? 'bg-white/20' : 'bg-slate-100 dark:bg-zinc-800'}`}>
+                {isActive && (
+                  <motion.div
+                    layoutId="activeCategoryPill"
+                    className="absolute inset-0 bg-indigo-600 rounded-xl"
+                    transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+                  />
+                )}
+                <span className={`relative z-10 ${isActive ? 'text-white' : cat.color}`}>{cat.icon}</span>
+                <span className="relative z-10">{cat.label}</span>
+                <span className={`relative z-10 text-[9px] font-black px-1 py-0.5 rounded ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-zinc-800'}`}>
                   {count}
                 </span>
               </button>
